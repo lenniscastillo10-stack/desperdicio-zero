@@ -1,0 +1,111 @@
+
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1f2937;
+  background: #f3f7f4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.cabecalho {
+  background: #176b45;
+  color: white;
+  padding: 28px 7%;
+}
+
+.cabecalho h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.cabecalho p {
+  margin: 8px 0 0;
+  color: #d9f3e4;
+}
+
+.conteudo {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 24px;
+}
+
+.conteudo > h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+.conteudo > p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.cartao {
+  background: white;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid #e2e8e5;
+  box-shadow: 0 4px 14px #163c2b0a;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cartao span {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.cartao strong {
+  font-size: 32px;
+  color: #176b45;
+}
+
+.lista {
+  background: white;
+  padding: 26px;
+  border-radius: 14px;
+  border: 1px solid #e2e8e5;
+}
+
+.lista h2 {
+  margin-top: 0;
+}
+
+.lista p {
+  color: #64748b;
+}
+
+@media (max-width: 700px) {
+  .indicadores {
+    grid-template-columns: 1fr;
+  }
+
+  .cabecalho h1 {
+    font-size: 24px;
+  }
+
+  .conteudo {
+    padding: 24px 16px;
+  }
+}
