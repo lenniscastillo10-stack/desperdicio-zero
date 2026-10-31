@@ -1,6 +1,6 @@
-import Categoria from "./Categoria.js";
-import Produto from "./Produto.js";
-import Lote from "./Lote.js";
+import Categoria from "./Categorias.js";
+import Produto from "./Produtos.js";
+import Lote from "./Lotes.js";
 import AcaoPreventiva from "./AcaoPreventiva.js";
 import MovimentacaoEstoque from "./MovimentacaoEstoque.js";
 
