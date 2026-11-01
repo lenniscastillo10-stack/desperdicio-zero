@@ -17,3 +17,17 @@ export const criarCategoria = async (req, res) => {
     });
   }
 };
+
+export const listarCategorias = async (req, res) => {
+  try {
+    const categorias = await Categoria.findAll();
+
+    return res.status(200).json(categorias);
+
+  } catch (erro) {
+    return res.status(500).json({
+      mensagem: "Erro ao consultar categorias",
+      erro: erro.message
+    });
+  }
+}
