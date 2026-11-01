@@ -84,4 +84,30 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const categoria = await Categoria.findByPk(id);
+
+    if (!categoria) {
+      return res.status(404).json({
+        mensagem: "Categoria não encontrada"
+      });
+    }
+
+    await categoria.destroy();
+
+    return res.status(200).json({
+      mensagem: "Categoria excluída com sucesso"
+    });
+
+  } catch (erro) {
+    return res.status(500).json({
+      mensagem: "Erro ao excluir categoria",
+      erro: erro.message
+    });
+  }
+});
+
 export default router;
