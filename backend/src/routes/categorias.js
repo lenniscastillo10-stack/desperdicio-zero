@@ -1,24 +1,12 @@
 import { Router } from "express";
 import Categoria from "../models/Categorias.js";
-import { criarCategoria } from "../controllers/categoriasController.js";
+import { criarCategoria, listarCategorias } from "../controllers/categoriasController.js";
 
 const router = Router();
 
 router.post("/", criarCategoria);
 
-router.get("/", async (req, res) => {
-  try {
-    const categorias = await Categoria.findAll();
-
-    return res.status(200).json(categorias);
-
-  } catch (erro) {
-    return res.status(500).json({
-      mensagem: "Erro ao consultar categorias",
-      erro: erro.message
-    });
-  }
-});
+router.get("/", listarCategorias);
 
 router.get("/:id", async (req, res) => {
   try {
