@@ -35,4 +35,26 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const categoria = await Categoria.findByPk(id);
+
+    if (!categoria) {
+      return res.status(404).json({
+        mensagem: "Categoria não encontrada"
+      });
+    }
+
+    return res.status(200).json(categoria);
+
+  } catch (erro) {
+    return res.status(500).json({
+      mensagem: "Erro ao consultar categoria",
+      erro: erro.message
+    });
+  }
+});
+
 export default router;
