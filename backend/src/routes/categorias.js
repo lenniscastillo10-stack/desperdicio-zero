@@ -1,6 +1,6 @@
 import { Router } from "express";
 import Categoria from "../models/Categorias.js";
-import { criarCategoria, listarCategorias } from "../controllers/categoriasController.js";
+import { criarCategoria, listarCategorias, buscarCategoriaPorId } from "../controllers/categoriasController.js";
 
 const router = Router();
 
@@ -8,27 +8,7 @@ router.post("/", criarCategoria);
 
 router.get("/", listarCategorias);
 
-router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const categoria = await Categoria.findByPk(id);
-
-    if (!categoria) {
-      return res.status(404).json({
-        mensagem: "Categoria não encontrada"
-      });
-    }
-
-    return res.status(200).json(categoria);
-
-  } catch (erro) {
-    return res.status(500).json({
-      mensagem: "Erro ao consultar categoria",
-      erro: erro.message
-    });
-  }
-});
+router.get("/:id", buscarCategoriaPorId);
 
 router.put("/:id", async (req, res) => {
   try {
