@@ -43,13 +43,3 @@ MovimentacaoEstoque.belongsTo(Lote, {
   foreignKey: "loteId",
   as: "lote"
 });
-
-AcaoPreventiva.hasMany(MovimentacaoEstoque, {
-  foreignKey: "acaoPreventivaId",
-  as: "movimentacoes"
-});
-
-MovimentacaoEstoque.belongsTo(AcaoPreventiva, {
-  foreignKey: "acaoPreventivaId",
-  as: "acaoPreventiva"
-});
