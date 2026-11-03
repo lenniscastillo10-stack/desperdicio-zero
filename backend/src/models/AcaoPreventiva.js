@@ -4,34 +4,39 @@ import sequelize from "../config/database.js";
 const AcaoPreventiva = sequelize.define("AcaoPreventiva", {
   tipoAcao: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
 
   quantidadeAfetada: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
 
   status: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: "PLANEJADA"
+    defaultValue: "PLANEJADA",
   },
 
   dataPlanejada: {
     type: DataTypes.DATEONLY,
-    allowNull: false
+    allowNull: false,
   },
 
   dataRealizada: {
     type: DataTypes.DATEONLY,
-    allowNull: true
+    allowNull: true,
   },
 
   observacoes: {
     type: DataTypes.TEXT,
-    allowNull: true
-  }
+    allowNull: true,
+  },
+
+  loteId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 });
 
 export default AcaoPreventiva;

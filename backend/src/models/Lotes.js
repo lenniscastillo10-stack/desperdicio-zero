@@ -4,33 +4,38 @@ import sequelize from "../config/database.js";
 const Lote = sequelize.define("Lote", {
   codigoLote: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
 
   quantidadeInicial: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
 
   quantidadeDisponivel: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
 
   custoUnitarioCentavos: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
 
   dataEntrada: {
     type: DataTypes.DATEONLY,
-    allowNull: false
+    allowNull: false,
   },
 
   dataValidade: {
     type: DataTypes.DATEONLY,
-    allowNull: false
-  }
+    allowNull: false,
+  },
+
+  produtoId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 });
 
 export default Lote;
