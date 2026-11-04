@@ -2,7 +2,7 @@ import express from "express";
 import categoriasRoutes from "./routes/categorias.js"
 import produtosRoutes from "./routes/produtos.js";
 import lotesRoutes from "./routes/lotes.js";
-import acoesPreventivasRoutes from "./routes/acoesPreventivas.js";
+import acoesPreventivasRoutes from "./routes/acaoPreventiva.js";
 
 const app = express();
 
