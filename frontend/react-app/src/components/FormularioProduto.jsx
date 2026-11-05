@@ -1,10 +1,9 @@
 function FormularioProduto({
   nome,
   setNome,
-  quantidade,
-  setQuantidade,
-  validade,
-  setValidade,
+  categoriaId,
+  setCategoriaId,
+  categorias,
   cadastrarProduto
 }) {
   return (
@@ -16,31 +15,27 @@ function FormularioProduto({
         <input
           id="nome"
           type="text"
-          placeholder="Ex.: Leite integral"
           value={nome}
-          onChange={(event) => setNome(event.target.value)}
+          onChange={(e) => setNome(e.target.value)}
+          placeholder="Ex: Leite Integral 1L"
           required
         />
 
-        <label htmlFor="quantidade">Quantidade em estoque</label>
-        <input
-          id="quantidade"
-          type="number"
-          min="1"
-          placeholder="Ex.: 20"
-          value={quantidade}
-          onChange={(event) => setQuantidade(event.target.value)}
+        <label htmlFor="categoriaId">Categoria</label>
+        <select
+          id="categoriaId"
+          value={categoriaId}
+          onChange={(e) => setCategoriaId(e.target.value)}
           required
-        />
+        >
+          <option value="">Selecione uma categoria</option>
 
-        <label htmlFor="validade">Data de validade</label>
-        <input
-          id="validade"
-          type="date"
-          value={validade}
-          onChange={(event) => setValidade(event.target.value)}
-          required
-        />
+          {categorias.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.nome}
+            </option>
+          ))}
+        </select>
 
         <button type="submit">Cadastrar produto</button>
       </form>
