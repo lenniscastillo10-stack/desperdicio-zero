@@ -1,0 +1,344 @@
+import { useState, useEffect } from "react";
+import FormularioMovimentacao from "./FormularioMovimentacao";
+import FormularioAcaoPreventiva from "./FormularioAcaoPreventiva";
+import {
+  listarMovimentacoes,
+  criarMovimentacao,
+} from "../services/movimentacaoEstoqueService";
+import {
+  listarAcoesPreventivas,
+  criarAcaoPreventiva,
+  atualizarAcaoPreventiva,
+} from "../services/acaoPreventivaService";
+
+function DetalhesProduto({
+  produto,
+  lotes,
+  calcularRisco,
+  voltar,
+  atualizarLotes,
+  atualizarAcoesPreventivas,
+}) {
+  const [movimentacoes, setMovimentacoes] = useState([]);
+  const [loteId, setLoteId] = useState("");
+  const [tipo, setTipo] = useState("");
+  const [quantidade, setQuantidade] = useState("");
+  const [data, setData] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+  const [acoesPreventivas, setAcoesPreventivas] = useState([]);
+  const [loteIdAcao, setLoteIdAcao] = useState("");
+  const [tipoAcao, setTipoAcao] = useState("");
+  const [quantidadeAfetada, setQuantidadeAfetada] = useState("");
+  const [dataPlanejada, setDataPlanejada] = useState("");
+  const [observacoesAcao, setObservacoesAcao] = useState("");
+
+  useEffect(() => {
+    async function carregarMovimentacoes() {
+      try {
+        const dados = await listarMovimentacoes();
+        setMovimentacoes(dados);
+      } catch (erro) {
+        console.error("Erro ao carregar movimentações:", erro.message);
+      }
+    }
+
+    carregarMovimentacoes();
+  }, []);
+
+  useEffect(() => {
+    async function carregarAcoes() {
+      try {
+        const dados = await listarAcoesPreventivas();
+        setAcoesPreventivas(dados);
+      } catch (erro) {
+        console.error("Erro ao carregar ações preventivas:", erro.message);
+      }
+    }
+
+    carregarAcoes();
+  }, []);
+
+  const lotesDoProduto = lotes
+    .filter((lote) => Number(lote.produtoId) === Number(produto.id))
+    .sort((a, b) => a.dataValidade.localeCompare(b.dataValidade));
+
+  const idsDosLotes = lotesDoProduto.map((lote) => Number(lote.id));
+
+  const movimentacoesDoProduto = movimentacoes
+    .filter((movimentacao) => idsDosLotes.includes(Number(movimentacao.loteId)))
+    .sort((a, b) => new Date(b.data) - new Date(a.data));
+
+  const acoesPreventivasDoProduto = acoesPreventivas
+    .filter((acao) => idsDosLotes.includes(Number(acao.loteId)))
+    .sort((a, b) => new Date(b.dataPlanejada) - new Date(a.dataPlanejada));
+
+  function formatarData(data) {
+    if (!data) return "Não informada";
+
+    const dataFormatada = data.includes("T") ? data : `${data}T00:00:00`;
+
+    return new Date(dataFormatada).toLocaleDateString("pt-BR");
+  }
+
+  function formatarMoeda(centavos) {
+    return (centavos / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+
+  async function registrarMovimentacao(event) {
+    event.preventDefault();
+
+    if (!loteId || !tipo || !quantidade || !data) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      const novaMovimentacao = await criarMovimentacao({
+        loteId: Number(loteId),
+        tipo,
+        quantidade: Number(quantidade),
+        data,
+        observacoes: observacoes.trim() || null,
+      });
+
+      setMovimentacoes((movimentacoesAtuais) => [
+        ...movimentacoesAtuais,
+        novaMovimentacao,
+      ]);
+
+      setLoteId("");
+      setTipo("");
+      setQuantidade("");
+      setData("");
+      setObservacoes("");
+
+      if (atualizarLotes) {
+        await atualizarLotes();
+      }
+
+      alert("Movimentação registrada com sucesso!");
+    } catch (erro) {
+      alert(erro.message);
+    }
+  }
+
+  async function registrarAcao(event) {
+    event.preventDefault();
+
+    if (
+      !loteIdAcao ||
+      !tipoAcao.trim() ||
+      !quantidadeAfetada ||
+      !dataPlanejada
+    ) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      const novaAcao = await criarAcaoPreventiva({
+        loteId: Number(loteIdAcao),
+        tipoAcao: tipoAcao.trim(),
+        quantidadeAfetada: Number(quantidadeAfetada),
+        dataPlanejada,
+        observacoes: observacoesAcao.trim() || null,
+      });
+
+      setAcoesPreventivas((atuais) => [...atuais, novaAcao]);
+
+      if (atualizarAcoesPreventivas) {
+        await atualizarAcoesPreventivas();
+      }
+
+      setLoteIdAcao("");
+      setTipoAcao("");
+      setQuantidadeAfetada("");
+      setDataPlanejada("");
+      setObservacoesAcao("");
+
+      alert("Ação preventiva registrada com sucesso!");
+    } catch (erro) {
+      alert(erro.message);
+    }
+  }
+
+  async function atualizarStatusAcao(acao, novoStatus) {
+    const hoje = new Date();
+
+    const dataAtual = [
+      hoje.getFullYear(),
+      String(hoje.getMonth() + 1).padStart(2, "0"),
+      String(hoje.getDate()).padStart(2, "0"),
+    ].join("-");
+
+    const dataRealizada = novoStatus === "CONCLUIDA" ? dataAtual : null;
+
+    try {
+      const acaoAtualizada = await atualizarAcaoPreventiva(acao.id, {
+        loteId: Number(acao.loteId),
+        tipoAcao: acao.tipoAcao,
+        quantidadeAfetada: Number(acao.quantidadeAfetada),
+        status: novoStatus,
+        dataPlanejada: acao.dataPlanejada,
+        dataRealizada,
+        observacoes: acao.observacoes,
+      });
+
+      setAcoesPreventivas((atuais) =>
+        atuais.map((item) => (item.id === acao.id ? acaoAtualizada : item)),
+      );
+
+      if (atualizarAcoesPreventivas) {
+        await atualizarAcoesPreventivas();
+      }
+
+      alert("Status da ação atualizado com sucesso!");
+    } catch (erro) {
+      alert(erro.message);
+    }
+  }
+
+  return (
+    <section className="lista">
+      <button type="button" onClick={voltar}>
+        ← Voltar aos produtos
+      </button>
+
+      <h2>{produto.nome}</h2>
+
+      <h3>Lotes cadastrados</h3>
+
+      {lotesDoProduto.length === 0 ? (
+        <p>Este produto ainda não possui lotes.</p>
+      ) : (
+        lotesDoProduto.map((lote) => (
+          <article className="produto" key={lote.id}>
+            <h3>Lote: {lote.codigoLote || "Não informado"}</h3>
+
+            <p>Quantidade disponível: {lote.quantidadeDisponivel}</p>
+
+            <p>Custo unitário: {formatarMoeda(lote.custoUnitarioCentavos)}</p>
+
+            <p>Data de entrada: {formatarData(lote.dataEntrada)}</p>
+
+            <p>Data de validade: {formatarData(lote.dataValidade)}</p>
+
+            <p>
+              Risco: <strong>{calcularRisco(lote.dataValidade)}</strong>
+            </p>
+          </article>
+        ))
+      )}
+
+      <FormularioMovimentacao
+        lotes={lotesDoProduto}
+        loteId={loteId}
+        setLoteId={setLoteId}
+        tipo={tipo}
+        setTipo={setTipo}
+        quantidade={quantidade}
+        setQuantidade={setQuantidade}
+        data={data}
+        setData={setData}
+        observacoes={observacoes}
+        setObservacoes={setObservacoes}
+        registrarMovimentacao={registrarMovimentacao}
+      />
+
+      <FormularioAcaoPreventiva
+        lotes={lotesDoProduto}
+        loteId={loteIdAcao}
+        setLoteId={setLoteIdAcao}
+        tipoAcao={tipoAcao}
+        setTipoAcao={setTipoAcao}
+        quantidadeAfetada={quantidadeAfetada}
+        setQuantidadeAfetada={setQuantidadeAfetada}
+        dataPlanejada={dataPlanejada}
+        setDataPlanejada={setDataPlanejada}
+        observacoes={observacoesAcao}
+        setObservacoes={setObservacoesAcao}
+        registrarAcao={registrarAcao}
+      />
+
+      <h3>Histórico de movimentações e ações preventivas</h3>
+
+      {movimentacoesDoProduto.length === 0 &&
+      acoesPreventivasDoProduto.length === 0 ? (
+        <p>
+          Este produto ainda não possui movimentações nem ações preventivas.
+        </p>
+      ) : (
+        <>
+          {movimentacoesDoProduto.length > 0 && (
+            <>
+              <h4>Movimentações</h4>
+
+              {movimentacoesDoProduto.map((movimentacao) => {
+                const loteRelacionado = lotesDoProduto.find(
+                  (lote) => Number(lote.id) === Number(movimentacao.loteId),
+                );
+
+                return (
+                  <article className="produto" key={movimentacao.id}>
+                    <h4>{movimentacao.tipo.replaceAll("_", " ")}</h4>
+
+                    <p>Quantidade: {movimentacao.quantidade}</p>
+                    <p>Data: {formatarData(movimentacao.data)}</p>
+
+                    <p>
+                      Lote:{" "}
+                      {loteRelacionado?.codigoLote ||
+                        `Lote ${movimentacao.loteId}`}
+                    </p>
+
+                    {movimentacao.observacoes && (
+                      <p>Observações: {movimentacao.observacoes}</p>
+                    )}
+                  </article>
+                );
+              })}
+            </>
+          )}
+
+          {acoesPreventivasDoProduto.length > 0 && (
+            <>
+              <h4>Ações preventivas</h4>
+
+              {acoesPreventivasDoProduto.map((acao) => (
+                <article className="produto" key={acao.id}>
+                  <h4>{acao.tipoAcao}</h4>
+
+                  <p>Quantidade afetada: {acao.quantidadeAfetada}</p>
+                  <p>Status: {acao.status}</p>
+                  <label htmlFor={`status-${acao.id}`}>Atualizar status:</label>
+
+                  <select
+                    id={`status-${acao.id}`}
+                    value={acao.status}
+                    onChange={(e) => atualizarStatusAcao(acao, e.target.value)}
+                  >
+                    <option value="PLANEJADA">Planejada</option>
+                    <option value="CONCLUIDA">Concluída</option>
+                    <option value="CANCELADA">Cancelada</option>
+                  </select>
+                  <p>Data planejada: {formatarData(acao.dataPlanejada)}</p>
+
+                  {acao.dataRealizada && (
+                    <p>Data realizada: {formatarData(acao.dataRealizada)}</p>
+                  )}
+
+                  {acao.observacoes && <p>Observações: {acao.observacoes}</p>}
+                </article>
+              ))}
+            </>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+export default DetalhesProduto;
