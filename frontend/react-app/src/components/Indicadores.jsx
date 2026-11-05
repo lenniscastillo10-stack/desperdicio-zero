@@ -1,4 +1,9 @@
-function Indicadores({ totalProdutos, produtosEmRisco }) {
+function Indicadores({
+  totalProdutos,
+  produtosEmRisco,
+  lotesProximosVencimento,
+  acoesPlanejadas,
+}) {
   return (
     <section className="indicadores">
       <article className="cartao">
@@ -12,11 +17,16 @@ function Indicadores({ totalProdutos, produtosEmRisco }) {
       </article>
 
       <article className="cartao">
-        <span>Perdas evitadas</span>
-        <strong>0</strong>
+        <span>Lotes próximos do vencimento</span>
+        <strong>{lotesProximosVencimento}</strong>
+      </article>
+
+      <article className="cartao">
+        <span>Ações preventivas planejadas</span>
+        <strong>{acoesPlanejadas}</strong>
       </article>
     </section>
-  )
+  );
 }
 
-export default Indicadores
+export default Indicadores;
