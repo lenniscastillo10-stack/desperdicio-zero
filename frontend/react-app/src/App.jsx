@@ -39,6 +39,8 @@ function App() {
   const [dataEntrada, setDataEntrada] = useState("");
   const [dataValidade, setDataValidade] = useState("");
   const [acoesPreventivas, setAcoesPreventivas] = useState([]);
+  const [formularioCategoriaAberto, setFormularioCategoriaAberto] =
+    useState(false);
 
   useEffect(() => {
     async function carregarDados() {
@@ -159,6 +161,7 @@ function App() {
       setCategorias((categoriasAtuais) => [...categoriasAtuais, novaCategoria]);
 
       setNomeCategoria("");
+      setFormularioCategoriaAberto(false);
 
       alert("Categoria cadastrada com sucesso!");
     } catch (erro) {
@@ -201,6 +204,7 @@ function App() {
 
       setCategoriaEmEdicao(null);
       setNomeCategoria("");
+      setFormularioCategoriaAberto(false);
 
       alert("Categoria atualizada com sucesso!");
     } catch (erro) {
@@ -209,6 +213,18 @@ function App() {
   }
 
   function cancelarEdicaoCategoria() {
+    setCategoriaEmEdicao(null);
+    setNomeCategoria("");
+  }
+
+  function abrirFormularioCategoria() {
+    setCategoriaEmEdicao(null);
+    setNomeCategoria("");
+    setFormularioCategoriaAberto(true);
+  }
+
+  function voltarParaCategorias() {
+    setFormularioCategoriaAberto(false);
     setCategoriaEmEdicao(null);
     setNomeCategoria("");
   }
@@ -296,19 +312,19 @@ function App() {
           acoesPlanejadas={acoesPlanejadas.length}
         />
 
-        <FormularioCategoria
-          nomeCategoria={nomeCategoria}
-          setNomeCategoria={setNomeCategoria}
-          cadastrarCategoria={cadastrarCategoria}
-          categoriaEmEdicao={categoriaEmEdicao}
-          atualizarCategoria={salvarEdicaoCategoria}
-          cancelarEdicao={cancelarEdicaoCategoria}
-        />
-
         {categoriaSelecionada ? (
           <DetalhesCategoria
             categoria={categoriaSelecionada}
             voltar={() => setCategoriaSelecionada(null)}
+          />
+        ) : formularioCategoriaAberto ? (
+          <FormularioCategoria
+            nomeCategoria={nomeCategoria}
+            setNomeCategoria={setNomeCategoria}
+            cadastrarCategoria={cadastrarCategoria}
+            categoriaEmEdicao={categoriaEmEdicao}
+            atualizarCategoria={salvarEdicaoCategoria}
+            cancelarEdicao={voltarParaCategorias}
           />
         ) : (
           <ListaCategorias
@@ -317,9 +333,11 @@ function App() {
             editarCategoria={(categoria) => {
               setCategoriaEmEdicao(categoria);
               setNomeCategoria(categoria.nome);
+              setFormularioCategoriaAberto(true);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             removerCategoria={removerCategoria}
+            abrirFormularioCategoria={abrirFormularioCategoria}
           />
         )}
 

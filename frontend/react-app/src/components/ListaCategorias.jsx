@@ -1,8 +1,20 @@
-function ListaCategorias({ categorias, selecionarCategoria, editarCategoria, removerCategoria, }) {
+function ListaCategorias({
+  categorias,
+  selecionarCategoria,
+  editarCategoria,
+  removerCategoria,
+  abrirFormularioCategoria,
+}) {
   return (
     <section className="lista">
-      <h2>Categorias cadastradas</h2>
+      <div className="cabecalho-lista">
+        <h2>Categorias cadastradas</h2>
 
+        <button type="button" onClick={abrirFormularioCategoria}>
+          + Nova categoria
+        </button>
+      </div>
+      
       {categorias.length === 0 ? (
         <p>Nenhuma categoria cadastrada.</p>
       ) : (

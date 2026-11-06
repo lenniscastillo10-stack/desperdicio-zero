@@ -8,14 +8,12 @@ function FormularioCategoria({
 }) {
   return (
     <section className="lista">
-      <h2>
-        {categoriaEmEdicao ? "Editar categoria" : "Cadastrar categoria"}
-      </h2>
+      <h2>{categoriaEmEdicao ? "Editar categoria" : "Cadastrar categoria"}</h2>
 
-      <form onSubmit={categoriaEmEdicao ? atualizarCategoria : cadastrarCategoria}>
-        <label htmlFor="nomeCategoria">
-          Nome da categoria
-        </label>
+      <form
+        onSubmit={categoriaEmEdicao ? atualizarCategoria : cadastrarCategoria}
+      >
+        <label htmlFor="nomeCategoria">Nome da categoria</label>
 
         <input
           id="nomeCategoria"
@@ -30,11 +28,9 @@ function FormularioCategoria({
           {categoriaEmEdicao ? "Salvar alterações" : "Cadastrar categoria"}
         </button>
 
-        {categoriaEmEdicao && (
-          <button type="button" onClick={cancelarEdicao}>
-            Cancelar
-          </button>
-        )}
+        <button type="button" onClick={cancelarEdicao}>
+          Voltar para categorias
+        </button>
       </form>
     </section>
   );
