@@ -196,6 +196,18 @@ span.risco.risco-baixo {
   gap: 14px;
 }
 
+.cabecalho-lista {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.cabecalho-lista h2 {
+  margin: 0;
+}
+
 .categoria-item {
   background: #f8faf9;
   border: 1px solid #e2e8e5;
