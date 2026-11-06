@@ -4,6 +4,7 @@ import produtosRoutes from "./routes/produtos.js";
 import lotesRoutes from "./routes/lotes.js";
 import acoesPreventivasRoutes from "./routes/acaoPreventiva.js";
 import movimentacaoEstoqueRoutes from "./routes/movimentacaoEstoque.js";
+import "./models/associacoes.js";
 import cors from "cors";
 
 const app = express();
