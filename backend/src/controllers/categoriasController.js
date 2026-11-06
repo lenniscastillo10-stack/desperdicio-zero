@@ -1,7 +1,14 @@
 import Categoria from "../models/Categorias.js";
 import { Op, fn, col, where } from "sequelize";
-import { UniqueConstraintError, ValidationError, ForeignKeyConstraintError } from "sequelize";
+import {
+  UniqueConstraintError,
+  ValidationError,
+  ForeignKeyConstraintError,
+} from "sequelize";
 import Produto from "../models/Produtos.js";
+import Lote from "../models/Lotes.js";
+import AcaoPreventiva from "../models/AcaoPreventiva.js";
+import MovimentacaoEstoque from "../models/MovimentacaoEstoque.js";
 
 export const criarCategoria = async (req, res) => {
   try {
@@ -73,7 +80,30 @@ export const buscarCategoriaPorId = async (req, res) => {
       });
     }
 
-    const categoria = await Categoria.findByPk(id);
+    const categoria = await Categoria.findByPk(id, {
+      include: [
+        {
+          model: Produto,
+          as: "produtos",
+          include: [
+            {
+              model: Lote,
+              as: "lotes",
+              include: [
+                {
+                  model: AcaoPreventiva,
+                  as: "acoesPreventivas",
+                },
+                {
+                  model: MovimentacaoEstoque,
+                  as: "movimentacoes",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
 
     if (!categoria) {
       return res.status(404).json({
