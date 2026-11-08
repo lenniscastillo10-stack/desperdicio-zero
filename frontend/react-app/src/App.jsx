@@ -27,11 +27,14 @@ function App() {
   const [produtos, setProdutos] = useState([]);
   const [produtoId, setProdutoId] = useState("");
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+  const [formularioProdutoAberto, setFormularioProdutoAberto] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [categoriaId, setCategoriaId] = useState("");
   const [nomeCategoria, setNomeCategoria] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const [categoriaEmEdicao, setCategoriaEmEdicao] = useState(null);
+  const [formularioCategoriaAberto, setFormularioCategoriaAberto] =
+    useState(false);
   const [lotes, setLotes] = useState([]);
   const [codigoLote, setCodigoLote] = useState("");
   const [quantidade, setQuantidade] = useState("");
@@ -39,8 +42,6 @@ function App() {
   const [dataEntrada, setDataEntrada] = useState("");
   const [dataValidade, setDataValidade] = useState("");
   const [acoesPreventivas, setAcoesPreventivas] = useState([]);
-  const [formularioCategoriaAberto, setFormularioCategoriaAberto] =
-    useState(false);
 
   useEffect(() => {
     async function carregarDados() {
@@ -83,11 +84,24 @@ function App() {
 
       setNome("");
       setCategoriaId("");
+      setFormularioProdutoAberto(false);
 
       alert("Produto cadastrado com sucesso!");
     } catch (erro) {
       alert(erro.message);
     }
+  }
+
+  function abrirFormularioProduto() {
+    setNome("");
+    setCategoriaId("");
+    setFormularioProdutoAberto(true);
+  }
+
+  function voltarParaProdutos() {
+    setFormularioProdutoAberto(false);
+    setNome("");
+    setCategoriaId("");
   }
 
   async function cadastrarLote(event) {
@@ -341,14 +355,31 @@ function App() {
           />
         )}
 
-        <FormularioProduto
-          nome={nome}
-          setNome={setNome}
-          categoriaId={categoriaId}
-          setCategoriaId={setCategoriaId}
-          categorias={categorias}
-          cadastrarProduto={cadastrarProduto}
-        />
+        {produtoSelecionado ? (
+          <DetalhesProduto
+            produto={produtoSelecionado}
+            lotes={lotes}
+            calcularRisco={calcularRisco}
+            voltar={() => setProdutoSelecionado(null)}
+          />
+        ) : formularioProdutoAberto ? (
+          <FormularioProduto
+            nome={nome}
+            setNome={setNome}
+            categoriaId={categoriaId}
+            setCategoriaId={setCategoriaId}
+            categorias={categorias}
+            cadastrarProduto={cadastrarProduto}
+          />
+        ) : (
+          <ListaProdutos
+            produtos={produtos}
+            lotes={lotes}
+            calcularRisco={calcularRisco}
+            selecionarProduto={setProdutoSelecionado}
+            abrirFormularioProduto={abrirFormularioProduto}
+          />
+        )}
 
         <FormularioLote
           produtos={produtos}
@@ -366,24 +397,6 @@ function App() {
           setDataValidade={setDataValidade}
           cadastrarLote={cadastrarLote}
         />
-
-        {produtoSelecionado ? (
-          <DetalhesProduto
-            produto={produtoSelecionado}
-            lotes={lotes}
-            calcularRisco={calcularRisco}
-            voltar={() => setProdutoSelecionado(null)}
-            atualizarLotes={atualizarLotes}
-            atualizarAcoesPreventivas={atualizarAcoesPreventivas}
-          />
-        ) : (
-          <ListaProdutos
-            produtos={produtos}
-            lotes={lotes}
-            calcularRisco={calcularRisco}
-            selecionarProduto={setProdutoSelecionado}
-          />
-        )}
       </main>
     </div>
   );
