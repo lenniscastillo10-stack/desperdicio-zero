@@ -241,3 +241,20 @@ span.risco.risco-baixo {
     grid-template-columns: 1fr;
   }
 }
+
+.barra-detalhes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.acoes-detalhes {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
