@@ -20,6 +20,7 @@ function DetalhesProduto({
   atualizarLotes,
   atualizarAcoesPreventivas,
   editarProduto,
+  removerLote,
 }) {
   const [movimentacoes, setMovimentacoes] = useState([]);
   const [loteId, setLoteId] = useState("");
@@ -281,6 +282,16 @@ function DetalhesProduto({
             <p>
               Risco: <strong>{calcularRisco(lote.dataValidade)}</strong>
             </p>
+
+            <div className="rodape-produto">
+              <button
+                type="button"
+                className="botao-excluir"
+                onClick={() => removerLote(lote.id)}
+              >
+                Excluir
+              </button>
+            </div>
           </article>
         ))
       )}

@@ -4,6 +4,7 @@ function ListaProdutos({
   calcularRisco,
   selecionarProduto,
   abrirFormularioProduto,
+  removerProduto,
 }) {
   function obterResumo(produto) {
     const lotesDoProduto = lotes.filter(
@@ -60,12 +61,7 @@ function ListaProdutos({
           const resumo = obterResumo(produto);
 
           return (
-            <button
-              type="button"
-              key={produto.id}
-              className="produto produto-clicavel"
-              onClick={() => selecionarProduto(produto)}
-            >
+            <article key={produto.id} className="produto">
               <div className="produto-cabecalho">
                 <h3>{produto.nome}</h3>
 
@@ -85,8 +81,23 @@ function ListaProdutos({
                 Próximo vencimento: {formatarData(resumo.proximoVencimento)}
               </p>
 
-              <span className="ver-detalhes">Ver detalhes →</span>
-            </button>
+              <div className="rodape-produto">
+                <button
+                  type="button"
+                  className="ver-detalhes"
+                  onClick={() => selecionarProduto(produto)}
+                >
+                  Ver detalhes →
+                </button>
+                <button
+                  type="button"
+                  className="botao-excluir"
+                  onClick={() => removerProduto(produto.id)}
+                >
+                  Excluir
+                </button>
+              </div>
+            </article>
           );
         })
       )}

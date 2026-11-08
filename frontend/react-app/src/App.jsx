@@ -22,8 +22,9 @@ import {
   listarProdutos,
   criarProduto,
   atualizarProduto,
+  excluirProduto,
 } from "./services/produtosService";
-import { listarLotes, criarLote } from "./services/lotesService";
+import { listarLotes, criarLote, excluirLote } from "./services/lotesService";
 import { listarAcoesPreventivas } from "./services/acaoPreventivaService";
 
 function App() {
@@ -153,6 +154,30 @@ function App() {
     }
   }
 
+  async function removerProduto(id) {
+    const confirmar = window.confirm(
+      "Tem certeza que deseja excluir este produto?",
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await excluirProduto(id);
+
+      setProdutos((produtosAtuais) =>
+        produtosAtuais.filter((produto) => Number(produto.id) !== Number(id)),
+      );
+
+      if (Number(produtoSelecionado?.id) === Number(id)) {
+        setProdutoSelecionado(null);
+      }
+
+      alert("Produto excluído com sucesso!");
+    } catch (erro) {
+      alert(erro.message);
+    }
+  }
+
   async function cadastrarLote(event) {
     event.preventDefault();
 
@@ -203,6 +228,26 @@ function App() {
       setDataValidade("");
 
       alert("Lote cadastrado com sucesso!");
+    } catch (erro) {
+      alert(erro.message);
+    }
+  }
+
+  async function removerLote(id) {
+    const confirmar = window.confirm(
+      "Tem certeza de que deseja excluir este lote?",
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await excluirLote(id);
+
+      setLotes((lotesAtuais) =>
+        lotesAtuais.filter((lote) => Number(lote.id) !== Number(id)),
+      );
+
+      alert("Lote excluído com sucesso!");
     } catch (erro) {
       alert(erro.message);
     }
@@ -412,6 +457,7 @@ function App() {
             calcularRisco={calcularRisco}
             voltar={() => setProdutoSelecionado(null)}
             editarProduto={editarProduto}
+            removerLote={removerLote}
             atualizarLotes={atualizarLotes}
             atualizarAcoesPreventivas={atualizarAcoesPreventivas}
           />
@@ -434,6 +480,7 @@ function App() {
             calcularRisco={calcularRisco}
             selecionarProduto={setProdutoSelecionado}
             abrirFormularioProduto={abrirFormularioProduto}
+            removerProduto={removerProduto}
           />
         )}
 
