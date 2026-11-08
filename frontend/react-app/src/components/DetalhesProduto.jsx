@@ -10,6 +10,7 @@ import {
   listarAcoesPreventivas,
   criarAcaoPreventiva,
   atualizarAcaoPreventiva,
+  excluirAcaoPreventiva,
 } from "../services/acaoPreventivaService";
 
 function DetalhesProduto({
@@ -59,6 +60,7 @@ function DetalhesProduto({
   const [formularioMovimentacaoAberto, setFormularioMovimentacaoAberto] =
     useState(false);
   const [formularioAcaoAberto, setFormularioAcaoAberto] = useState(false);
+  const [acaoEmEdicao, setAcaoEmEdicao] = useState(null);
 
   const categoriaDoProduto = (categorias || []).find(
     (categoria) => Number(categoria.id) === Number(produto.categoriaId),
@@ -89,6 +91,15 @@ function DetalhesProduto({
 
     carregarAcoes();
   }, []);
+
+  useEffect(() => {
+    if (formularioAcaoAberto) {
+      document.getElementById("formulario-acao")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [formularioAcaoAberto]);
 
   const lotesDoProduto = lotes
     .filter((lote) => Number(lote.produtoId) === Number(produto.id))
@@ -167,6 +178,27 @@ function DetalhesProduto({
     }
   }
 
+  function abrirFormularioAcao() {
+    setLoteIdAcao("");
+    setTipoAcao("");
+    setQuantidadeAfetada("");
+    setDataPlanejada("");
+    setObservacoesAcao("");
+
+    setFormularioAcaoAberto(true);
+  }
+
+  function editarAcao(acao) {
+    setAcaoEmEdicao(acao);
+    setLoteIdAcao(String(acao.loteId));
+    setTipoAcao(acao.tipoAcao);
+    setQuantidadeAfetada(String(acao.quantidadeAfetada));
+    setDataPlanejada(acao.dataPlanejada);
+    setObservacoesAcao(acao.observacoes || "");
+
+    setFormularioAcaoAberto(true);
+  }
+
   function cancelarAcao() {
     setLoteIdAcao("");
     setTipoAcao("");
@@ -174,6 +206,7 @@ function DetalhesProduto({
     setDataPlanejada("");
     setObservacoesAcao("");
     setFormularioAcaoAberto(false);
+    setAcaoEmEdicao(null);
   }
 
   async function registrarAcao(event) {
@@ -190,28 +223,43 @@ function DetalhesProduto({
     }
 
     try {
-      const novaAcao = await criarAcaoPreventiva({
-        loteId: Number(loteIdAcao),
-        tipoAcao: tipoAcao.trim(),
-        quantidadeAfetada: Number(quantidadeAfetada),
-        dataPlanejada,
-        observacoes: observacoesAcao.trim() || null,
-      });
+      if (acaoEmEdicao) {
+        const acaoAtualizada = await atualizarAcaoPreventiva(acaoEmEdicao.id, {
+          loteId: Number(loteIdAcao),
+          tipoAcao: tipoAcao.trim(),
+          quantidadeAfetada: Number(quantidadeAfetada),
+          status: acaoEmEdicao.status,
+          dataPlanejada,
+          dataRealizada: acaoEmEdicao.dataRealizada,
+          observacoes: observacoesAcao.trim() || null,
+        });
 
-      setAcoesPreventivas((atuais) => [...atuais, novaAcao]);
+        setAcoesPreventivas((atuais) =>
+          atuais.map((item) =>
+            item.id === acaoAtualizada.id ? acaoAtualizada : item,
+          ),
+        );
+
+        alert("Ação preventiva atualizada com sucesso!");
+      } else {
+        const novaAcao = await criarAcaoPreventiva({
+          loteId: Number(loteIdAcao),
+          tipoAcao: tipoAcao.trim(),
+          quantidadeAfetada: Number(quantidadeAfetada),
+          dataPlanejada,
+          observacoes: observacoesAcao.trim() || null,
+        });
+
+        setAcoesPreventivas((atuais) => [...atuais, novaAcao]);
+
+        alert("Ação preventiva registrada com sucesso!");
+      }
 
       if (atualizarAcoesPreventivas) {
         await atualizarAcoesPreventivas();
       }
 
-      setLoteIdAcao("");
-      setTipoAcao("");
-      setQuantidadeAfetada("");
-      setDataPlanejada("");
-      setObservacoesAcao("");
-      setFormularioAcaoAberto(false);
-
-      alert("Ação preventiva registrada com sucesso!");
+      cancelarAcao();
     } catch (erro) {
       alert(erro.message);
     }
@@ -253,6 +301,26 @@ function DetalhesProduto({
     }
   }
 
+  async function removerAcao(acao) {
+    const confirmar = window.confirm(
+      "Tem certeza de que deseja excluir esta ação preventiva?",
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await excluirAcaoPreventiva(acao.id);
+
+      setAcoesPreventivas((estadoAtual) =>
+        estadoAtual.filter((item) => item.id !== acao.id),
+      );
+
+      alert("Ação preventiva excluída com sucesso!");
+    } catch (erro) {
+      alert(erro.message || "Erro ao excluir ação preventiva.");
+    }
+  }
+
   return (
     <section className="lista">
       <div className="barra-detalhes">
@@ -265,7 +333,7 @@ function DetalhesProduto({
             Editar produto
           </button>
 
-          <button type="button" onClick={() => setFormularioAcaoAberto(true)}>
+          <button type="button" onClick={abrirFormularioAcao}>
             + Ação preventiva
           </button>
 
@@ -377,21 +445,24 @@ function DetalhesProduto({
       )}
 
       {formularioAcaoAberto && (
-        <FormularioAcaoPreventiva
-          lotes={lotesDoProduto}
-          loteId={loteIdAcao}
-          setLoteId={setLoteIdAcao}
-          tipoAcao={tipoAcao}
-          setTipoAcao={setTipoAcao}
-          quantidadeAfetada={quantidadeAfetada}
-          setQuantidadeAfetada={setQuantidadeAfetada}
-          dataPlanejada={dataPlanejada}
-          setDataPlanejada={setDataPlanejada}
-          observacoes={observacoesAcao}
-          setObservacoes={setObservacoesAcao}
-          registrarAcao={registrarAcao}
-          cancelar={cancelarAcao}
-        />
+        <div id="formulario-acao">
+          <FormularioAcaoPreventiva
+            lotes={lotesDoProduto}
+            acaoEmEdicao={acaoEmEdicao}
+            loteId={loteIdAcao}
+            setLoteId={setLoteIdAcao}
+            tipoAcao={tipoAcao}
+            setTipoAcao={setTipoAcao}
+            quantidadeAfetada={quantidadeAfetada}
+            setQuantidadeAfetada={setQuantidadeAfetada}
+            dataPlanejada={dataPlanejada}
+            setDataPlanejada={setDataPlanejada}
+            observacoes={observacoesAcao}
+            setObservacoes={setObservacoesAcao}
+            registrarAcao={registrarAcao}
+            cancelar={cancelarAcao}
+          />
+        </div>
       )}
 
       <h3>Histórico de movimentações e ações preventivas</h3>
@@ -462,6 +533,20 @@ function DetalhesProduto({
                   )}
 
                   {acao.observacoes && <p>Observações: {acao.observacoes}</p>}
+
+                  <div className="botoes-lotes">
+                    <button type="button" onClick={() => editarAcao(acao)}>
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      className="botao-excluir"
+                      onClick={() => removerAcao(acao)}
+                    >
+                      Excluir
+                    </button>
+                  </div>
                 </article>
               ))}
             </>

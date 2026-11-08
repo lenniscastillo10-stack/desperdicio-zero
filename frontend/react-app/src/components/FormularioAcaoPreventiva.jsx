@@ -1,5 +1,6 @@
 function FormularioAcaoPreventiva({
   lotes,
+  acaoEmEdicao,
   loteId,
   setLoteId,
   tipoAcao,
@@ -15,7 +16,9 @@ function FormularioAcaoPreventiva({
 }) {
   return (
     <section className="lista">
-      <h3>Registrar ação preventiva</h3>
+      <h3>
+        {acaoEmEdicao ? "Editar ação preventiva" : "Registrar ação preventiva"}
+      </h3>
 
       <form onSubmit={registrarAcao}>
         <label htmlFor="loteAcao">Lote</label>
@@ -70,9 +73,11 @@ function FormularioAcaoPreventiva({
           onChange={(e) => setObservacoes(e.target.value)}
         />
 
-        <button type="submit">Registrar ação</button>
+        <button type="submit">
+          {acaoEmEdicao ? "Salvar alterações" : "Registrar ação"}
+        </button>
         <button type="button" onClick={cancelar}>
-          Cancelar
+          {acaoEmEdicao ? "Cancelar edição" : "Voltar às ações"}
         </button>
       </form>
     </section>
