@@ -5,6 +5,8 @@ import FormularioLote from "./FormularioLote";
 import {
   listarMovimentacoes,
   criarMovimentacao,
+  atualizarMovimentacao,
+  excluirMovimentacao,
 } from "../services/movimentacaoEstoqueService";
 import {
   listarAcoesPreventivas,
@@ -61,6 +63,7 @@ function DetalhesProduto({
     useState(false);
   const [formularioAcaoAberto, setFormularioAcaoAberto] = useState(false);
   const [acaoEmEdicao, setAcaoEmEdicao] = useState(null);
+  const [movimentacaoEmEdicao, setMovimentacaoEmEdicao] = useState(null);
 
   const categoriaDoProduto = (categorias || []).find(
     (categoria) => Number(categoria.id) === Number(produto.categoriaId),
@@ -118,9 +121,10 @@ function DetalhesProduto({
   function formatarData(data) {
     if (!data) return "Não informada";
 
-    const dataFormatada = data.includes("T") ? data : `${data}T00:00:00`;
+    const dataSemHorario = data.split("T")[0];
+    const [ano, mes, dia] = dataSemHorario.split("-");
 
-    return new Date(dataFormatada).toLocaleDateString("pt-BR");
+    return `${dia}/${mes}/${ano}`;
   }
 
   function formatarMoeda(centavos) {
@@ -137,6 +141,27 @@ function DetalhesProduto({
     setData("");
     setObservacoes("");
     setFormularioMovimentacaoAberto(false);
+    setMovimentacaoEmEdicao(null);
+  }
+
+  function editarMovimentacao(movimentacao) {
+    setMovimentacaoEmEdicao(movimentacao);
+    setLoteId(String(movimentacao.loteId));
+    setTipo(movimentacao.tipo);
+    setQuantidade(String(movimentacao.quantidade));
+    setData(movimentacao.data);
+    setObservacoes(movimentacao.observacoes || "");
+    setFormularioMovimentacaoAberto(true);
+  }
+
+  function abrirFormularioMovimentacao() {
+    setMovimentacaoEmEdicao(null);
+    setLoteId("");
+    setTipo("");
+    setQuantidade("");
+    setData("");
+    setObservacoes("");
+    setFormularioMovimentacaoAberto(true);
   }
 
   async function registrarMovimentacao(event) {
@@ -148,33 +173,76 @@ function DetalhesProduto({
     }
 
     try {
-      const novaMovimentacao = await criarMovimentacao({
-        loteId: Number(loteId),
-        tipo,
-        quantidade: Number(quantidade),
-        data,
-        observacoes: observacoes.trim() || null,
-      });
+      if (movimentacaoEmEdicao) {
+        const movimentacaoAtualizada = await atualizarMovimentacao(
+          movimentacaoEmEdicao.id,
 
-      setMovimentacoes((movimentacoesAtuais) => [
-        ...movimentacoesAtuais,
-        novaMovimentacao,
-      ]);
+          {
+            loteId: Number(loteId),
+            tipo,
+            quantidade: Number(quantidade),
+            data,
+            observacoes: observacoes.trim() || null,
+          },
+        );
 
-      setLoteId("");
-      setTipo("");
-      setQuantidade("");
-      setData("");
-      setObservacoes("");
-      setFormularioMovimentacaoAberto(false);
+        setMovimentacoes((movimentacoesAtuais) =>
+          movimentacoesAtuais.map((item) =>
+            item.id === movimentacaoAtualizada.id
+              ? movimentacaoAtualizada
+              : item,
+          ),
+        );
+
+        alert("Movimentação atualizada com sucesso!");
+      } else {
+        const novaMovimentacao = await criarMovimentacao({
+          loteId: Number(loteId),
+          tipo,
+          quantidade: Number(quantidade),
+          data,
+          observacoes: observacoes.trim() || null,
+        });
+
+        setMovimentacoes((movimentacoesAtuais) => [
+          ...movimentacoesAtuais,
+          novaMovimentacao,
+        ]);
+
+        alert("Movimentação registrada com sucesso!");
+      }
+
+      cancelarMovimentacao();
+
+      if (atualizarLotes) {
+        await atualizarLotes();
+      }
+    } catch (erro) {
+      alert(erro.message);
+    }
+  }
+
+  async function removerMovimentacao(movimentacao) {
+    const confirmar = window.confirm(
+      "Tem certeza de que deseja excluir esta movimentação?",
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await excluirMovimentacao(movimentacao.id);
+
+      setMovimentacoes((movimentacoesAtuais) =>
+        movimentacoesAtuais.filter((item) => item.id !== movimentacao.id),
+      );
 
       if (atualizarLotes) {
         await atualizarLotes();
       }
 
-      alert("Movimentação registrada com sucesso!");
+      alert("Movimentação excluída com sucesso!");
     } catch (erro) {
-      alert(erro.message);
+      alert(erro.message || "Erro ao excluir movimentação.");
     }
   }
 
@@ -315,6 +383,10 @@ function DetalhesProduto({
         estadoAtual.filter((item) => item.id !== acao.id),
       );
 
+      if (atualizarAcoesPreventivas) {
+        await atualizarAcoesPreventivas();
+      }
+
       alert("Ação preventiva excluída com sucesso!");
     } catch (erro) {
       alert(erro.message || "Erro ao excluir ação preventiva.");
@@ -337,10 +409,7 @@ function DetalhesProduto({
             + Ação preventiva
           </button>
 
-          <button
-            type="button"
-            onClick={() => setFormularioMovimentacaoAberto(true)}
-          >
+          <button type="button" onClick={abrirFormularioMovimentacao}>
             + Movimentação do estoque
           </button>
         </div>
@@ -351,8 +420,6 @@ function DetalhesProduto({
       </div>
 
       <p>Categoria: {categoriaDoProduto?.nome || "Não identificada"}</p>
-
-      <h3>Lotes cadastrados</h3>
 
       <div className="cabecalho-lotes">
         <h2>Lotes cadastrados</h2>
@@ -429,6 +496,7 @@ function DetalhesProduto({
       {formularioMovimentacaoAberto && (
         <FormularioMovimentacao
           lotes={lotesDoProduto}
+          movimentacaoEmEdicao={movimentacaoEmEdicao}
           loteId={loteId}
           setLoteId={setLoteId}
           tipo={tipo}
@@ -499,6 +567,23 @@ function DetalhesProduto({
                     {movimentacao.observacoes && (
                       <p>Observações: {movimentacao.observacoes}</p>
                     )}
+
+                    <div className="botoes-lotes">
+                      <button
+                        type="button"
+                        onClick={() => editarMovimentacao(movimentacao)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="botao-excluir"
+                        onClick={() => removerMovimentacao(movimentacao)}
+                      >
+                        Excluir
+                      </button>
+                    </div>
                   </article>
                 );
               })}

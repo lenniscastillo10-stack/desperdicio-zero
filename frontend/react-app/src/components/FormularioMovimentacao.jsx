@@ -1,5 +1,6 @@
 function FormularioMovimentacao({
   lotes,
+  movimentacaoEmEdicao,
   loteId,
   setLoteId,
   tipo,
@@ -15,7 +16,11 @@ function FormularioMovimentacao({
 }) {
   return (
     <section className="lista">
-      <h3>Registrar movimentação</h3>
+      <h3>
+        {movimentacaoEmEdicao
+          ? "Editar movimentação"
+          : "Registrar movimentação"}
+      </h3>
 
       <form onSubmit={registrarMovimentacao}>
         <label htmlFor="loteId">Lote</label>
@@ -82,9 +87,13 @@ function FormularioMovimentacao({
           onChange={(e) => setObservacoes(e.target.value)}
         />
 
-        <button type="submit">Registrar movimentação</button>
+        <button type="submit">
+          {movimentacaoEmEdicao
+            ? "Salvar alterações"
+            : "Registrar movimentação"}
+        </button>
         <button type="button" onClick={cancelar}>
-          Cancelar
+          {movimentacaoEmEdicao ? "Cancelar edição" : "Voltar às movimentações"}
         </button>
       </form>
     </section>
