@@ -316,3 +316,37 @@ span.risco.risco-baixo {
 .botao-excluir:hover {
   background: #fee2e2;
 }
+
+.botoes-lotes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.botao-novo-lote {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #287a4b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.botao-novo-lote:hover {
+  background-color: #20633d;
+}
+
+.cabecalho-lotes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
