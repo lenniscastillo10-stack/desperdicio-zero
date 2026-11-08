@@ -258,3 +258,61 @@ span.risco.risco-baixo {
   gap: 10px;
   flex-wrap: wrap;
 }
+
+.produto {
+  background: #f8faf9;
+  border: 1px solid #e2e8e5;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.produto-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.produto-cabecalho h3 {
+  margin: 0;
+  color: #176b45;
+}
+
+.rodape-produto {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.ver-detalhes {
+  margin: 0;
+  padding: 8px 0;
+  background: transparent;
+  border: none;
+  color: #176b45;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.ver-detalhes:hover {
+  color: #0d4f31;
+  text-decoration: underline;
+}
+
+.botao-excluir {
+  margin: 0;
+  padding: 8px 16px;
+  background: #fff;
+  color: #b91c1c;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.botao-excluir:hover {
+  background: #fee2e2;
+}
