@@ -4,16 +4,11 @@ import sequelize from "../config/database.js";
 
 export const criarMovimentacao = async (req, res) => {
   try {
-    const {
-      loteId,
-      tipo,
-      quantidade,
-      observacoes
-    } = req.body;
+    const { loteId, tipo, quantidade, data, observacoes } = req.body;
 
     if (!Number.isInteger(Number(loteId)) || Number(loteId) <= 0) {
       return res.status(400).json({
-        mensagem: "Informe um ID de lote válido"
+        mensagem: "Informe um ID de lote válido",
       });
     }
 
@@ -22,18 +17,37 @@ export const criarMovimentacao = async (req, res) => {
 
     if (![...tiposEntrada, ...tiposSaida].includes(tipo)) {
       return res.status(400).json({
-        mensagem: "Tipo de movimentação inválido"
+        mensagem: "Tipo de movimentação inválido",
       });
     }
 
     if (!Number.isInteger(quantidade) || quantidade <= 0) {
       return res.status(400).json({
-        mensagem: "A quantidade deve ser um número inteiro maior que zero"
+        mensagem: "A quantidade deve ser um número inteiro maior que zero",
+      });
+    }
+
+    if (!data || !/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+      return res.status(400).json({
+        mensagem: "Informe uma data válida",
+      });
+    }
+
+    const hoje = new Date();
+
+    const hojeFormatado = [
+      hoje.getFullYear(),
+      String(hoje.getMonth() + 1).padStart(2, "0"),
+      String(hoje.getDate()).padStart(2, "0"),
+    ].join("-");
+
+    if (data > hojeFormatado) {
+      return res.status(400).json({
+        mensagem: "A data da movimentação não pode ser futura",
       });
     }
 
     const movimentacao = await sequelize.transaction(async (transaction) => {
-
       const lote = await Lote.findByPk(loteId, { transaction });
 
       if (!lote) {
@@ -60,7 +74,7 @@ export const criarMovimentacao = async (req, res) => {
 
       await lote.update(
         { quantidadeDisponivel: novaQuantidade },
-        { transaction }
+        { transaction },
       );
 
       const novaMovimentacao = await MovimentacaoEstoque.create(
@@ -68,27 +82,27 @@ export const criarMovimentacao = async (req, res) => {
           loteId,
           tipo,
           quantidade,
-          observacoes: observacoes || null
+          data,
+          observacoes: observacoes || null,
         },
-        { transaction }
+        { transaction },
       );
 
       return novaMovimentacao;
     });
 
     return res.status(201).json(movimentacao);
-
   } catch (erro) {
     console.error("Erro ao cadastrar movimentação:", erro);
 
     if (erro.status) {
       return res.status(erro.status).json({
-        mensagem: erro.message
+        mensagem: erro.message,
       });
     }
 
     return res.status(500).json({
-      mensagem: "Erro interno ao cadastrar movimentação"
+      mensagem: "Erro interno ao cadastrar movimentação",
     });
   }
 };
@@ -98,12 +112,11 @@ export const listarMovimentacoes = async (req, res) => {
     const movimentacoes = await MovimentacaoEstoque.findAll();
 
     return res.status(200).json(movimentacoes);
-
   } catch (erro) {
     console.error("Erro ao listar movimentações:", erro);
 
     return res.status(500).json({
-      mensagem: "Erro interno ao listar movimentações"
+      mensagem: "Erro interno ao listar movimentações",
     });
   }
 };
@@ -114,7 +127,7 @@ export const buscarMovimentacaoPorId = async (req, res) => {
 
     if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
       return res.status(400).json({
-        mensagem: "Informe um ID válido"
+        mensagem: "Informe um ID válido",
       });
     }
 
@@ -122,17 +135,16 @@ export const buscarMovimentacaoPorId = async (req, res) => {
 
     if (!movimentacao) {
       return res.status(404).json({
-        mensagem: "Movimentação não encontrada"
+        mensagem: "Movimentação não encontrada",
       });
     }
 
     return res.status(200).json(movimentacao);
-
   } catch (erro) {
     console.error("Erro ao buscar movimentação:", erro);
 
     return res.status(500).json({
-      mensagem: "Erro interno ao buscar movimentação"
+      mensagem: "Erro interno ao buscar movimentação",
     });
   }
 };
@@ -140,17 +152,17 @@ export const buscarMovimentacaoPorId = async (req, res) => {
 export const atualizarMovimentacao = async (req, res) => {
   try {
     const { id } = req.params;
-    const { loteId, tipo, quantidade, observacoes } = req.body;
+    const { loteId, tipo, quantidade, data, observacoes } = req.body;
 
     if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
       return res.status(400).json({
-        mensagem: "Informe um ID válido"
+        mensagem: "Informe um ID válido",
       });
     }
 
     if (!Number.isInteger(Number(loteId)) || Number(loteId) <= 0) {
       return res.status(400).json({
-        mensagem: "Informe um ID de lote válido"
+        mensagem: "Informe um ID de lote válido",
       });
     }
 
@@ -160,132 +172,153 @@ export const atualizarMovimentacao = async (req, res) => {
 
     if (!tiposPermitidos.includes(tipo)) {
       return res.status(400).json({
-        mensagem: "Tipo de movimentação inválido"
+        mensagem: "Tipo de movimentação inválido",
       });
     }
 
     if (!Number.isInteger(quantidade) || quantidade <= 0) {
       return res.status(400).json({
-        mensagem: "A quantidade deve ser um número inteiro maior que zero"
+        mensagem: "A quantidade deve ser um número inteiro maior que zero",
       });
     }
 
-    const movimentacaoAtualizada = await sequelize.transaction(async (transaction) => {
-
-      const movimentacao = await MovimentacaoEstoque.findByPk(id, {
-        transaction
+    if (!data || !/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+      return res.status(400).json({
+        mensagem: "Informe uma data válida",
       });
+    }
 
-      if (!movimentacao) {
-        const erro = new Error("Movimentação não encontrada");
-        erro.status = 404;
-        throw erro;
-      }
+    const hoje = new Date();
 
-      const loteAntigo = await Lote.findByPk(movimentacao.loteId, {
-        transaction
+    const hojeFormatado = [
+      hoje.getFullYear(),
+      String(hoje.getMonth() + 1).padStart(2, "0"),
+      String(hoje.getDate()).padStart(2, "0"),
+    ].join("-");
+
+    if (data > hojeFormatado) {
+      return res.status(400).json({
+        mensagem: "A data da movimentação não pode ser futura",
       });
+    }
 
-      if (!loteAntigo) {
-        const erro = new Error("Lote original não encontrado");
-        erro.status = 404;
-        throw erro;
-      }
+    const movimentacaoAtualizada = await sequelize.transaction(
+      async (transaction) => {
+        const movimentacao = await MovimentacaoEstoque.findByPk(id, {
+          transaction,
+        });
 
-      const loteNovo = await Lote.findByPk(Number(loteId), {
-        transaction
-      });
+        if (!movimentacao) {
+          const erro = new Error("Movimentação não encontrada");
+          erro.status = 404;
+          throw erro;
+        }
 
-      if (!loteNovo) {
-        const erro = new Error("Lote informado não encontrado");
-        erro.status = 404;
-        throw erro;
-      }
+        const loteAntigo = await Lote.findByPk(movimentacao.loteId, {
+          transaction,
+        });
 
-      const quantidadeAntiga = Number(movimentacao.quantidade);
-      const saldoAntigo = Number(loteAntigo.quantidadeDisponivel);
+        if (!loteAntigo) {
+          const erro = new Error("Lote original não encontrado");
+          erro.status = 404;
+          throw erro;
+        }
 
-      let saldoAposEstorno;
+        const loteNovo = await Lote.findByPk(Number(loteId), {
+          transaction,
+        });
 
-      if (tiposEntrada.includes(movimentacao.tipo)) {
-        saldoAposEstorno = saldoAntigo - quantidadeAntiga;
-      } else {
-        saldoAposEstorno = saldoAntigo + quantidadeAntiga;
-      }
+        if (!loteNovo) {
+          const erro = new Error("Lote informado não encontrado");
+          erro.status = 404;
+          throw erro;
+        }
 
-      if (saldoAposEstorno < 0) {
-        const erro = new Error(
-          "Não é possível atualizar: o estoque já não possui saldo suficiente para estornar a movimentação original"
-        );
-        erro.status = 409;
-        throw erro;
-      }
+        const quantidadeAntiga = Number(movimentacao.quantidade);
+        const saldoAntigo = Number(loteAntigo.quantidadeDisponivel);
 
-      const mesmoLote = Number(loteAntigo.id) === Number(loteNovo.id);
+        let saldoAposEstorno;
 
-      const saldoBase = mesmoLote
-        ? saldoAposEstorno
-        : Number(loteNovo.quantidadeDisponivel);
+        if (tiposEntrada.includes(movimentacao.tipo)) {
+          saldoAposEstorno = saldoAntigo - quantidadeAntiga;
+        } else {
+          saldoAposEstorno = saldoAntigo + quantidadeAntiga;
+        }
 
-      let novoSaldo;
-
-      if (tiposEntrada.includes(tipo)) {
-        novoSaldo = saldoBase + quantidade;
-      } else {
-        if (quantidade > saldoBase) {
+        if (saldoAposEstorno < 0) {
           const erro = new Error(
-            "Estoque insuficiente para essa movimentação"
+            "Não é possível atualizar: o estoque já não possui saldo suficiente para estornar a movimentação original",
           );
           erro.status = 409;
           throw erro;
         }
 
-        novoSaldo = saldoBase - quantidade;
-      }
+        const mesmoLote = Number(loteAntigo.id) === Number(loteNovo.id);
 
-      if (mesmoLote) {
-        await loteAntigo.update(
-          { quantidadeDisponivel: novoSaldo },
-          { transaction }
+        const saldoBase = mesmoLote
+          ? saldoAposEstorno
+          : Number(loteNovo.quantidadeDisponivel);
+
+        let novoSaldo;
+
+        if (tiposEntrada.includes(tipo)) {
+          novoSaldo = saldoBase + quantidade;
+        } else {
+          if (quantidade > saldoBase) {
+            const erro = new Error(
+              "Estoque insuficiente para essa movimentação",
+            );
+            erro.status = 409;
+            throw erro;
+          }
+
+          novoSaldo = saldoBase - quantidade;
+        }
+
+        if (mesmoLote) {
+          await loteAntigo.update(
+            { quantidadeDisponivel: novoSaldo },
+            { transaction },
+          );
+        } else {
+          await loteAntigo.update(
+            { quantidadeDisponivel: saldoAposEstorno },
+            { transaction },
+          );
+
+          await loteNovo.update(
+            { quantidadeDisponivel: novoSaldo },
+            { transaction },
+          );
+        }
+
+        await movimentacao.update(
+          {
+            loteId: Number(loteId),
+            tipo,
+            quantidade,
+            data,
+            observacoes: observacoes || null,
+          },
+          { transaction },
         );
-      } else {
-        await loteAntigo.update(
-          { quantidadeDisponivel: saldoAposEstorno },
-          { transaction }
-        );
 
-        await loteNovo.update(
-          { quantidadeDisponivel: novoSaldo },
-          { transaction }
-        );
-      }
-
-      await movimentacao.update(
-        {
-          loteId: Number(loteId),
-          tipo,
-          quantidade,
-          observacoes: observacoes || null
-        },
-        { transaction }
-      );
-
-      return movimentacao;
-    });
+        return movimentacao;
+      },
+    );
 
     return res.status(200).json(movimentacaoAtualizada);
-
   } catch (erro) {
     console.error("Erro ao atualizar movimentação:", erro);
 
     if (erro.status) {
       return res.status(erro.status).json({
-        mensagem: erro.message
+        mensagem: erro.message,
       });
     }
 
     return res.status(500).json({
-      mensagem: "Erro interno ao atualizar movimentação"
+      mensagem: "Erro interno ao atualizar movimentação",
     });
   }
 };
@@ -297,15 +330,14 @@ export const excluirMovimentacao = async (req, res) => {
     // Validar ID
     if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
       return res.status(400).json({
-        mensagem: "Informe um ID válido"
+        mensagem: "Informe um ID válido",
       });
     }
 
     await sequelize.transaction(async (transaction) => {
-
       // Buscar movimentação
       const movimentacao = await MovimentacaoEstoque.findByPk(id, {
-        transaction
+        transaction,
       });
 
       if (!movimentacao) {
@@ -316,7 +348,7 @@ export const excluirMovimentacao = async (req, res) => {
 
       // Buscar lote associado
       const lote = await Lote.findByPk(movimentacao.loteId, {
-        transaction
+        transaction,
       });
 
       if (!lote) {
@@ -340,37 +372,33 @@ export const excluirMovimentacao = async (req, res) => {
       // Impedir saldo negativo
       if (novoSaldo < 0) {
         const erro = new Error(
-          "Não é possível excluir esta movimentação porque o estoque ficaria negativo"
+          "Não é possível excluir esta movimentação porque o estoque ficaria negativo",
         );
         erro.status = 409;
         throw erro;
       }
 
       // Atualizar estoque
-      await lote.update(
-        { quantidadeDisponivel: novoSaldo },
-        { transaction }
-      );
+      await lote.update({ quantidadeDisponivel: novoSaldo }, { transaction });
 
       // Excluir movimentação
       await movimentacao.destroy({ transaction });
     });
 
     return res.status(200).json({
-      mensagem: "Movimentação excluída e estoque atualizado com sucesso"
+      mensagem: "Movimentação excluída e estoque atualizado com sucesso",
     });
-
   } catch (erro) {
     console.error("Erro ao excluir movimentação:", erro);
 
     if (erro.status) {
       return res.status(erro.status).json({
-        mensagem: erro.message
+        mensagem: erro.message,
       });
     }
 
     return res.status(500).json({
-      mensagem: "Erro interno ao excluir movimentação"
+      mensagem: "Erro interno ao excluir movimentação",
     });
   }
 };
