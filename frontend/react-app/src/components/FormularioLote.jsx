@@ -12,11 +12,13 @@ function FormularioLote({
   setDataEntrada,
   dataValidade,
   setDataValidade,
-  cadastrarLote
+  cadastrarLote,
+  loteEmEdicao,
+  cancelarEdicao,
 }) {
   return (
     <section className="lista">
-      <h2>Cadastrar lote</h2>
+      <h2>{loteEmEdicao ? "Editar lote" : "Cadastrar lote"}</h2>
 
       <form onSubmit={cadastrarLote}>
         <label htmlFor="produtoId">Produto</label>
@@ -82,10 +84,22 @@ function FormularioLote({
           required
         />
 
-        <button type="submit">Cadastrar lote</button>
+        <button type="submit">
+          {loteEmEdicao ? "Salvar alterações" : "Cadastrar lote"}
+        </button>
+
+        {loteEmEdicao ? (
+          <button type="button" onClick={cancelarEdicao}>
+            Cancelar edição
+          </button>
+        ) : (
+          <button type="button" onClick={cancelarEdicao}>
+            Voltar aos lotes
+          </button>
+        )}
       </form>
     </section>
-  )
+  );
 }
 
-export default FormularioLote
+export default FormularioLote;

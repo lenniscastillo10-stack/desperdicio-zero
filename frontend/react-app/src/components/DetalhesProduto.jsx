@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import FormularioMovimentacao from "./FormularioMovimentacao";
 import FormularioAcaoPreventiva from "./FormularioAcaoPreventiva";
+import FormularioLote from "./FormularioLote";
 import {
   listarMovimentacoes,
   criarMovimentacao,
@@ -17,10 +18,31 @@ function DetalhesProduto({
   categorias,
   calcularRisco,
   voltar,
-  atualizarLotes,
-  atualizarAcoesPreventivas,
   editarProduto,
   removerLote,
+  editarLote,
+  abrirFormularioLote,
+  atualizarLotes,
+  atualizarAcoesPreventivas,
+
+  produtos,
+  produtoId,
+  setProdutoId,
+  codigoLote,
+  setCodigoLote,
+  quantidade: quantidadeLote,
+  setQuantidade: setQuantidadeLote,
+  custoUnitario,
+  setCustoUnitario,
+  dataEntrada,
+  setDataEntrada,
+  dataValidade,
+  setDataValidade,
+  cadastrarLote,
+  loteEmEdicao,
+  cancelarEdicao,
+  formularioLoteAberto,
+  setFormularioLoteAberto,
 }) {
   const [movimentacoes, setMovimentacoes] = useState([]);
   const [loteId, setLoteId] = useState("");
@@ -264,6 +286,42 @@ function DetalhesProduto({
 
       <h3>Lotes cadastrados</h3>
 
+      <div className="cabecalho-lotes">
+        <h2>Lotes cadastrados</h2>
+
+        <button
+          type="button"
+          className="botao-novo-lote"
+          onClick={abrirFormularioLote}
+        >
+          <span>+</span>
+          Novo lote
+        </button>
+      </div>
+
+      {formularioLoteAberto && (
+        <div id="formulario-lote">
+          <FormularioLote
+            produtos={produtos}
+            produtoId={produtoId}
+            setProdutoId={setProdutoId}
+            codigoLote={codigoLote}
+            setCodigoLote={setCodigoLote}
+            quantidade={quantidadeLote}
+            setQuantidade={setQuantidadeLote}
+            custoUnitario={custoUnitario}
+            setCustoUnitario={setCustoUnitario}
+            dataEntrada={dataEntrada}
+            setDataEntrada={setDataEntrada}
+            dataValidade={dataValidade}
+            setDataValidade={setDataValidade}
+            cadastrarLote={cadastrarLote}
+            loteEmEdicao={loteEmEdicao}
+            cancelarEdicao={cancelarEdicao}
+          />
+        </div>
+      )}
+
       {lotesDoProduto.length === 0 ? (
         <p>Este produto ainda não possui lotes.</p>
       ) : (
@@ -283,7 +341,11 @@ function DetalhesProduto({
               Risco: <strong>{calcularRisco(lote.dataValidade)}</strong>
             </p>
 
-            <div className="rodape-produto">
+            <div className="botoes-lotes">
+              <button type="button" onClick={() => editarLote(lote)}>
+                Editar
+              </button>
+
               <button
                 type="button"
                 className="botao-excluir"

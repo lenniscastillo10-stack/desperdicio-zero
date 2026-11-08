@@ -24,7 +24,12 @@ import {
   atualizarProduto,
   excluirProduto,
 } from "./services/produtosService";
-import { listarLotes, criarLote, excluirLote } from "./services/lotesService";
+import {
+  listarLotes,
+  criarLote,
+  excluirLote,
+  atualizarLote,
+} from "./services/lotesService";
 import { listarAcoesPreventivas } from "./services/acaoPreventivaService";
 
 function App() {
@@ -49,6 +54,8 @@ function App() {
   const [custoUnitario, setCustoUnitario] = useState("");
   const [dataEntrada, setDataEntrada] = useState("");
   const [dataValidade, setDataValidade] = useState("");
+  const [loteEmEdicao, setLoteEmEdicao] = useState(null);
+  const [formularioLoteAberto, setFormularioLoteAberto] = useState(false);
 
   const [acoesPreventivas, setAcoesPreventivas] = useState([]);
 
@@ -74,6 +81,15 @@ function App() {
 
     carregarDados();
   }, []);
+
+  useEffect(() => {
+    if (formularioLoteAberto) {
+      document.getElementById("formulario-lote")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [formularioLoteAberto]);
 
   async function cadastrarProduto(event) {
     event.preventDefault();
@@ -208,17 +224,39 @@ function App() {
     }
 
     try {
-      const novoLote = await criarLote({
+      const dadosLote = {
         produtoId: Number(produtoId),
         codigoLote: codigoLote.trim() || null,
         quantidadeInicial: Number(quantidade),
-        quantidadeDisponivel: Number(quantidade),
+        quantidadeDisponivel: loteEmEdicao
+          ? loteEmEdicao.quantidadeDisponivel
+          : Number(quantidade),
         custoUnitarioCentavos: Math.round(Number(custoUnitario) * 100),
         dataEntrada,
         dataValidade,
-      });
+      };
 
-      setLotes((lotesAtuais) => [...lotesAtuais, novoLote]);
+      if (loteEmEdicao) {
+        const loteAtualizado = await atualizarLote(loteEmEdicao.id, dadosLote);
+
+        setLotes((lotesAtuais) =>
+          lotesAtuais.map((lote) =>
+            Number(lote.id) === Number(loteAtualizado.id)
+              ? loteAtualizado
+              : lote,
+          ),
+        );
+
+        setLoteEmEdicao(null);
+
+        alert("Lote atualizado com sucesso!");
+      } else {
+        const novoLote = await criarLote(dadosLote);
+
+        setLotes((lotesAtuais) => [...lotesAtuais, novoLote]);
+
+        alert("Lote cadastrado com sucesso!");
+      }
 
       setProdutoId("");
       setCodigoLote("");
@@ -226,11 +264,22 @@ function App() {
       setCustoUnitario("");
       setDataEntrada("");
       setDataValidade("");
-
-      alert("Lote cadastrado com sucesso!");
+      setLoteEmEdicao(null);
+      setFormularioLoteAberto(false);
     } catch (erro) {
       alert(erro.message);
     }
+  }
+
+  function abrirFormularioLote() {
+    setLoteEmEdicao(null);
+    setProdutoId(String(produtoSelecionado.id));
+    setCodigoLote("");
+    setQuantidade("");
+    setCustoUnitario("");
+    setDataEntrada("");
+    setDataValidade("");
+    setFormularioLoteAberto(true);
   }
 
   async function removerLote(id) {
@@ -251,6 +300,30 @@ function App() {
     } catch (erro) {
       alert(erro.message);
     }
+  }
+
+  function editarLote(lote) {
+    setLoteEmEdicao(lote);
+
+    setProdutoId(String(lote.produtoId));
+    setCodigoLote(lote.codigoLote || "");
+    setQuantidade(String(lote.quantidadeInicial));
+    setCustoUnitario((lote.custoUnitarioCentavos / 100).toFixed(2));
+    setDataEntrada(lote.dataEntrada);
+    setDataValidade(lote.dataValidade);
+    setFormularioLoteAberto(true);
+  }
+
+  function cancelarEdicaoLote() {
+    setLoteEmEdicao(null);
+
+    setProdutoId("");
+    setCodigoLote("");
+    setQuantidade("");
+    setCustoUnitario("");
+    setDataEntrada("");
+    setDataValidade("");
+    setFormularioLoteAberto(false);
   }
 
   async function cadastrarCategoria(event) {
@@ -458,8 +531,28 @@ function App() {
             voltar={() => setProdutoSelecionado(null)}
             editarProduto={editarProduto}
             removerLote={removerLote}
+            editarLote={editarLote}
+            abrirFormularioLote={abrirFormularioLote}
             atualizarLotes={atualizarLotes}
             atualizarAcoesPreventivas={atualizarAcoesPreventivas}
+            produtos={produtos}
+            produtoId={produtoId}
+            setProdutoId={setProdutoId}
+            codigoLote={codigoLote}
+            setCodigoLote={setCodigoLote}
+            quantidade={quantidade}
+            setQuantidade={setQuantidade}
+            custoUnitario={custoUnitario}
+            setCustoUnitario={setCustoUnitario}
+            dataEntrada={dataEntrada}
+            setDataEntrada={setDataEntrada}
+            dataValidade={dataValidade}
+            setDataValidade={setDataValidade}
+            cadastrarLote={cadastrarLote}
+            loteEmEdicao={loteEmEdicao}
+            cancelarEdicao={cancelarEdicaoLote}
+            formularioLoteAberto={formularioLoteAberto}
+            setFormularioLoteAberto={setFormularioLoteAberto}
           />
         ) : formularioProdutoAberto ? (
           <FormularioProduto
@@ -483,23 +576,6 @@ function App() {
             removerProduto={removerProduto}
           />
         )}
-
-        <FormularioLote
-          produtos={produtos}
-          produtoId={produtoId}
-          setProdutoId={setProdutoId}
-          codigoLote={codigoLote}
-          setCodigoLote={setCodigoLote}
-          quantidade={quantidade}
-          setQuantidade={setQuantidade}
-          custoUnitario={custoUnitario}
-          setCustoUnitario={setCustoUnitario}
-          dataEntrada={dataEntrada}
-          setDataEntrada={setDataEntrada}
-          dataValidade={dataValidade}
-          setDataValidade={setDataValidade}
-          cadastrarLote={cadastrarLote}
-        />
       </main>
     </div>
   );
