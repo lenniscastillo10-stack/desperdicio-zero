@@ -14,10 +14,12 @@ import {
 function DetalhesProduto({
   produto,
   lotes,
+  categorias,
   calcularRisco,
   voltar,
   atualizarLotes,
   atualizarAcoesPreventivas,
+  editarProduto,
 }) {
   const [movimentacoes, setMovimentacoes] = useState([]);
   const [loteId, setLoteId] = useState("");
@@ -31,6 +33,13 @@ function DetalhesProduto({
   const [quantidadeAfetada, setQuantidadeAfetada] = useState("");
   const [dataPlanejada, setDataPlanejada] = useState("");
   const [observacoesAcao, setObservacoesAcao] = useState("");
+  const [formularioMovimentacaoAberto, setFormularioMovimentacaoAberto] =
+    useState(false);
+  const [formularioAcaoAberto, setFormularioAcaoAberto] = useState(false);
+
+  const categoriaDoProduto = (categorias || []).find(
+    (categoria) => Number(categoria.id) === Number(produto.categoriaId),
+  );
 
   useEffect(() => {
     async function carregarMovimentacoes() {
@@ -87,6 +96,15 @@ function DetalhesProduto({
     });
   }
 
+  function cancelarMovimentacao() {
+    setLoteId("");
+    setTipo("");
+    setQuantidade("");
+    setData("");
+    setObservacoes("");
+    setFormularioMovimentacaoAberto(false);
+  }
+
   async function registrarMovimentacao(event) {
     event.preventDefault();
 
@@ -114,6 +132,7 @@ function DetalhesProduto({
       setQuantidade("");
       setData("");
       setObservacoes("");
+      setFormularioMovimentacaoAberto(false);
 
       if (atualizarLotes) {
         await atualizarLotes();
@@ -123,6 +142,15 @@ function DetalhesProduto({
     } catch (erro) {
       alert(erro.message);
     }
+  }
+
+  function cancelarAcao() {
+    setLoteIdAcao("");
+    setTipoAcao("");
+    setQuantidadeAfetada("");
+    setDataPlanejada("");
+    setObservacoesAcao("");
+    setFormularioAcaoAberto(false);
   }
 
   async function registrarAcao(event) {
@@ -158,6 +186,7 @@ function DetalhesProduto({
       setQuantidadeAfetada("");
       setDataPlanejada("");
       setObservacoesAcao("");
+      setFormularioAcaoAberto(false);
 
       alert("Ação preventiva registrada com sucesso!");
     } catch (erro) {
@@ -203,11 +232,34 @@ function DetalhesProduto({
 
   return (
     <section className="lista">
-      <button type="button" onClick={voltar}>
-        ← Voltar aos produtos
-      </button>
+      <div className="barra-detalhes">
+        <button type="button" onClick={voltar}>
+          ← Voltar aos produtos
+        </button>
 
-      <h2>{produto.nome}</h2>
+        <div className="acoes-detalhes">
+          <button type="button" onClick={() => editarProduto(produto)}>
+            Editar produto
+          </button>
+
+          <button type="button" onClick={() => setFormularioAcaoAberto(true)}>
+            + Ação preventiva
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFormularioMovimentacaoAberto(true)}
+          >
+            + Movimentação do estoque
+          </button>
+        </div>
+      </div>
+
+      <div className="produto-cabecalho">
+        <h2>{produto.nome}</h2>
+      </div>
+
+      <p>Categoria: {categoriaDoProduto?.nome || "Não identificada"}</p>
 
       <h3>Lotes cadastrados</h3>
 
@@ -233,35 +285,41 @@ function DetalhesProduto({
         ))
       )}
 
-      <FormularioMovimentacao
-        lotes={lotesDoProduto}
-        loteId={loteId}
-        setLoteId={setLoteId}
-        tipo={tipo}
-        setTipo={setTipo}
-        quantidade={quantidade}
-        setQuantidade={setQuantidade}
-        data={data}
-        setData={setData}
-        observacoes={observacoes}
-        setObservacoes={setObservacoes}
-        registrarMovimentacao={registrarMovimentacao}
-      />
+      {formularioMovimentacaoAberto && (
+        <FormularioMovimentacao
+          lotes={lotesDoProduto}
+          loteId={loteId}
+          setLoteId={setLoteId}
+          tipo={tipo}
+          setTipo={setTipo}
+          quantidade={quantidade}
+          setQuantidade={setQuantidade}
+          data={data}
+          setData={setData}
+          observacoes={observacoes}
+          setObservacoes={setObservacoes}
+          registrarMovimentacao={registrarMovimentacao}
+          cancelar={cancelarMovimentacao}
+        />
+      )}
 
-      <FormularioAcaoPreventiva
-        lotes={lotesDoProduto}
-        loteId={loteIdAcao}
-        setLoteId={setLoteIdAcao}
-        tipoAcao={tipoAcao}
-        setTipoAcao={setTipoAcao}
-        quantidadeAfetada={quantidadeAfetada}
-        setQuantidadeAfetada={setQuantidadeAfetada}
-        dataPlanejada={dataPlanejada}
-        setDataPlanejada={setDataPlanejada}
-        observacoes={observacoesAcao}
-        setObservacoes={setObservacoesAcao}
-        registrarAcao={registrarAcao}
-      />
+      {formularioAcaoAberto && (
+        <FormularioAcaoPreventiva
+          lotes={lotesDoProduto}
+          loteId={loteIdAcao}
+          setLoteId={setLoteIdAcao}
+          tipoAcao={tipoAcao}
+          setTipoAcao={setTipoAcao}
+          quantidadeAfetada={quantidadeAfetada}
+          setQuantidadeAfetada={setQuantidadeAfetada}
+          dataPlanejada={dataPlanejada}
+          setDataPlanejada={setDataPlanejada}
+          observacoes={observacoesAcao}
+          setObservacoes={setObservacoesAcao}
+          registrarAcao={registrarAcao}
+          cancelar={cancelarAcao}
+        />
+      )}
 
       <h3>Histórico de movimentações e ações preventivas</h3>
 

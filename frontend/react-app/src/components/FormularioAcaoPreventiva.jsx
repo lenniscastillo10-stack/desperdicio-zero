@@ -11,6 +11,7 @@ function FormularioAcaoPreventiva({
   observacoes,
   setObservacoes,
   registrarAcao,
+  cancelar,
 }) {
   return (
     <section className="lista">
@@ -43,9 +44,7 @@ function FormularioAcaoPreventiva({
           required
         />
 
-        <label htmlFor="quantidadeAfetada">
-          Quantidade afetada
-        </label>
+        <label htmlFor="quantidadeAfetada">Quantidade afetada</label>
         <input
           id="quantidadeAfetada"
           type="number"
@@ -64,9 +63,7 @@ function FormularioAcaoPreventiva({
           required
         />
 
-        <label htmlFor="observacoesAcao">
-          Observações (opcional)
-        </label>
+        <label htmlFor="observacoesAcao">Observações (opcional)</label>
         <textarea
           id="observacoesAcao"
           value={observacoes}
@@ -74,6 +71,9 @@ function FormularioAcaoPreventiva({
         />
 
         <button type="submit">Registrar ação</button>
+        <button type="button" onClick={cancelar}>
+          Cancelar
+        </button>
       </form>
     </section>
   );

@@ -18,7 +18,11 @@ import {
   atualizarCategoria,
   excluirCategoria,
 } from "./services/categoriasService";
-import { listarProdutos, criarProduto } from "./services/produtosService";
+import {
+  listarProdutos,
+  criarProduto,
+  atualizarProduto,
+} from "./services/produtosService";
 import { listarLotes, criarLote } from "./services/lotesService";
 import { listarAcoesPreventivas } from "./services/acaoPreventivaService";
 
@@ -27,7 +31,9 @@ function App() {
   const [produtos, setProdutos] = useState([]);
   const [produtoId, setProdutoId] = useState("");
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+  const [produtoEmEdicao, setProdutoEmEdicao] = useState(null);
   const [formularioProdutoAberto, setFormularioProdutoAberto] = useState(false);
+
   const [categorias, setCategorias] = useState([]);
   const [categoriaId, setCategoriaId] = useState("");
   const [nomeCategoria, setNomeCategoria] = useState("");
@@ -35,12 +41,14 @@ function App() {
   const [categoriaEmEdicao, setCategoriaEmEdicao] = useState(null);
   const [formularioCategoriaAberto, setFormularioCategoriaAberto] =
     useState(false);
+
   const [lotes, setLotes] = useState([]);
   const [codigoLote, setCodigoLote] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [custoUnitario, setCustoUnitario] = useState("");
   const [dataEntrada, setDataEntrada] = useState("");
   const [dataValidade, setDataValidade] = useState("");
+
   const [acoesPreventivas, setAcoesPreventivas] = useState([]);
 
   useEffect(() => {
@@ -102,6 +110,47 @@ function App() {
     setFormularioProdutoAberto(false);
     setNome("");
     setCategoriaId("");
+  }
+
+  function editarProduto(produto) {
+    setProdutoEmEdicao(produto);
+    setNome(produto.nome);
+    setCategoriaId(String(produto.categoriaId));
+    setFormularioProdutoAberto(true);
+    setProdutoSelecionado(null);
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function salvarEdicaoProduto(event) {
+    event.preventDefault();
+
+    if (!nome.trim() || !categoriaId) {
+      alert("Preencha todos os campos.");
+      return;
+    }
+
+    try {
+      const produtoAtualizado = await atualizarProduto(produtoEmEdicao.id, {
+        nome: nome.trim(),
+        categoriaId: Number(categoriaId),
+      });
+
+      setProdutos((produtosAtuais) =>
+        produtosAtuais.map((produto) =>
+          produto.id === produtoAtualizado.id ? produtoAtualizado : produto,
+        ),
+      );
+
+      setProdutoEmEdicao(null);
+      setNome("");
+      setCategoriaId("");
+      setFormularioProdutoAberto(false);
+
+      alert("Produto atualizado com sucesso!");
+    } catch (erro) {
+      alert(erro.message);
+    }
   }
 
   async function cadastrarLote(event) {
@@ -359,8 +408,12 @@ function App() {
           <DetalhesProduto
             produto={produtoSelecionado}
             lotes={lotes}
+            categorias={categorias}
             calcularRisco={calcularRisco}
             voltar={() => setProdutoSelecionado(null)}
+            editarProduto={editarProduto}
+            atualizarLotes={atualizarLotes}
+            atualizarAcoesPreventivas={atualizarAcoesPreventivas}
           />
         ) : formularioProdutoAberto ? (
           <FormularioProduto
@@ -370,6 +423,9 @@ function App() {
             setCategoriaId={setCategoriaId}
             categorias={categorias}
             cadastrarProduto={cadastrarProduto}
+            produtoEmEdicao={produtoEmEdicao}
+            atualizarProduto={salvarEdicaoProduto}
+            cancelarEdicao={voltarParaProdutos}
           />
         ) : (
           <ListaProdutos

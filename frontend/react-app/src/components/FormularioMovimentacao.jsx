@@ -10,7 +10,8 @@ function FormularioMovimentacao({
   setData,
   observacoes,
   setObservacoes,
-  registrarMovimentacao
+  registrarMovimentacao,
+  cancelar,
 }) {
   return (
     <section className="lista">
@@ -30,7 +31,7 @@ function FormularioMovimentacao({
           {lotes.map((lote) => (
             <option key={lote.id} value={lote.id}>
               {lote.codigoLote || `Lote ${lote.id}`}
-              {' — '}
+              {" — "}
               {lote.quantidadeDisponivel} disponíveis
             </option>
           ))}
@@ -81,12 +82,13 @@ function FormularioMovimentacao({
           onChange={(e) => setObservacoes(e.target.value)}
         />
 
-        <button type="submit">
-          Registrar movimentação
+        <button type="submit">Registrar movimentação</button>
+        <button type="button" onClick={cancelar}>
+          Cancelar
         </button>
       </form>
     </section>
-  )
+  );
 }
 
-export default FormularioMovimentacao
+export default FormularioMovimentacao;

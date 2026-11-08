@@ -4,13 +4,16 @@ function FormularioProduto({
   categoriaId,
   setCategoriaId,
   categorias,
-  cadastrarProduto
+  cadastrarProduto,
+  produtoEmEdicao,
+  atualizarProduto,
+  cancelarEdicao,
 }) {
   return (
     <section className="lista">
-      <h2>Cadastrar produto</h2>
+      <h2>{produtoEmEdicao ? "Editar produto" : "Cadastrar produto"}</h2>
 
-      <form onSubmit={cadastrarProduto}>
+      <form onSubmit={produtoEmEdicao ? atualizarProduto : cadastrarProduto}>
         <label htmlFor="nome">Nome do produto</label>
         <input
           id="nome"
@@ -37,10 +40,16 @@ function FormularioProduto({
           ))}
         </select>
 
-        <button type="submit">Cadastrar produto</button>
+        <button type="submit">
+          {produtoEmEdicao ? "Salvar alterações" : "Cadastrar produto"}
+        </button>
+        
+        <button type="button" onClick={cancelarEdicao}>
+          Voltar para produtos
+        </button>
       </form>
     </section>
-  )
+  );
 }
 
-export default FormularioProduto
+export default FormularioProduto;
