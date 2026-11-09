@@ -72,13 +72,18 @@ function FormularioAcaoPreventiva({
           value={observacoes}
           onChange={(e) => setObservacoes(e.target.value)}
         />
-
-        <button type="submit">
-          {acaoEmEdicao ? "Salvar alterações" : "Registrar ação"}
-        </button>
-        <button type="button" onClick={cancelar}>
-          {acaoEmEdicao ? "Cancelar edição" : "Voltar às ações"}
-        </button>
+        <div className="acoes-formulario">
+          <button className="botao botao-primario" type="submit">
+            {acaoEmEdicao ? "Salvar alterações" : "Registrar ação"}
+          </button>
+          <button
+            className="botao botao-secundario"
+            type="button"
+            onClick={cancelar}
+          >
+            {acaoEmEdicao ? "Cancelar edição" : "Voltar às ações"}
+          </button>
+        </div>
       </form>
     </section>
   );

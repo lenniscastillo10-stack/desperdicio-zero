@@ -86,15 +86,22 @@ function FormularioMovimentacao({
           value={observacoes}
           onChange={(e) => setObservacoes(e.target.value)}
         />
-
-        <button type="submit">
-          {movimentacaoEmEdicao
-            ? "Salvar alterações"
-            : "Registrar movimentação"}
-        </button>
-        <button type="button" onClick={cancelar}>
-          {movimentacaoEmEdicao ? "Cancelar edição" : "Voltar às movimentações"}
-        </button>
+        <div className="acoes-formulario">
+          <button className="botao botao-primario" type="submit">
+            {movimentacaoEmEdicao
+              ? "Salvar alterações"
+              : "Registrar movimentação"}
+          </button>
+          <button
+            className="botao botao-secundario"
+            type="button"
+            onClick={cancelar}
+          >
+            {movimentacaoEmEdicao
+              ? "Cancelar edição"
+              : "Voltar às movimentações"}
+          </button>
+        </div>
       </form>
     </section>
   );

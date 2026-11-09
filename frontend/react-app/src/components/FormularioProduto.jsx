@@ -39,14 +39,19 @@ function FormularioProduto({
             </option>
           ))}
         </select>
+        <div className="acoes-formulario">
+          <button className="botao botao-primario" type="submit">
+            {produtoEmEdicao ? "Salvar alterações" : "Cadastrar produto"}
+          </button>
 
-        <button type="submit">
-          {produtoEmEdicao ? "Salvar alterações" : "Cadastrar produto"}
-        </button>
-        
-        <button type="button" onClick={cancelarEdicao}>
-          Voltar para produtos
-        </button>
+          <button
+            className="botao botao-secundario"
+            type="button"
+            onClick={cancelarEdicao}
+          >
+            Voltar para produtos
+          </button>
+        </div>
       </form>
     </section>
   );

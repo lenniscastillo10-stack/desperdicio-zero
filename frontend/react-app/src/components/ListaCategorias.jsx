@@ -10,11 +10,15 @@ function ListaCategorias({
       <div className="cabecalho-lista">
         <h2>Categorias cadastradas</h2>
 
-        <button type="button" onClick={abrirFormularioCategoria}>
+        <button
+          type="button"
+          className="botao botao-primario"
+          onClick={abrirFormularioCategoria}
+        >
           + Nova categoria
         </button>
       </div>
-      
+
       {categorias.length === 0 ? (
         <p>Nenhuma categoria cadastrada.</p>
       ) : (
@@ -35,6 +39,7 @@ function ListaCategorias({
 
                 <button
                   type="button"
+                  className="botao botao-secundario"
                   onClick={(event) => {
                     event.stopPropagation();
                     editarCategoria(categoria);
@@ -45,6 +50,7 @@ function ListaCategorias({
 
                 <button
                   type="button"
+                  className="botao botao-perigo"
                   onClick={(event) => {
                     event.stopPropagation();
                     removerCategoria(categoria.id);

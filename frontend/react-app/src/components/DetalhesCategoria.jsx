@@ -15,9 +15,15 @@ function formatarMoeda(valorEmCentavos) {
 function DetalhesCategoria({ categoria, voltar }) {
   return (
     <section className="lista detalhes-categoria">
-      <button type="button" onClick={voltar}>
-        ← Voltar às categorias
-      </button>
+      <div className="barra-detalhes">
+        <button
+          type="button"
+          className="botao botao-secundario"
+          onClick={voltar}
+        >
+          ← Voltar às categorias
+        </button>
+      </div>
 
       <h2>{categoria.nome}</h2>
       <p>Identificador: #{categoria.id}</p>
@@ -39,19 +45,12 @@ function DetalhesCategoria({ categoria, voltar }) {
             ) : (
               produto.lotes?.map((lote) => (
                 <div key={lote.id} className="categoria-lote">
-                  <h4>
-                    Lote: {lote.codigoLote || `#${lote.id}`}
-                  </h4>
+                  <h4>Lote: {lote.codigoLote || `#${lote.id}`}</h4>
 
+                  <p>Quantidade inicial: {lote.quantidadeInicial}</p>
+                  <p>Quantidade disponível: {lote.quantidadeDisponivel}</p>
                   <p>
-                    Quantidade inicial: {lote.quantidadeInicial}
-                  </p>
-                  <p>
-                    Quantidade disponível: {lote.quantidadeDisponivel}
-                  </p>
-                  <p>
-                    Custo unitário:{" "}
-                    {formatarMoeda(lote.custoUnitarioCentavos)}
+                    Custo unitário: {formatarMoeda(lote.custoUnitarioCentavos)}
                   </p>
                   <p>Entrada: {formatarData(lote.dataEntrada)}</p>
                   <p>Validade: {formatarData(lote.dataValidade)}</p>
@@ -62,12 +61,10 @@ function DetalhesCategoria({ categoria, voltar }) {
                     <p>Nenhuma ação preventiva registrada.</p>
                   ) : (
                     lote.acoesPreventivas?.map((acao) => (
-                      <div key={acao.id}>
+                      <div key={acao.id} className="categoria-registro">
                         <p>Tipo: {acao.tipoAcao}</p>
                         <p>Status: {acao.status}</p>
-                        <p>
-                          Quantidade afetada: {acao.quantidadeAfetada}
-                        </p>
+                        <p>Quantidade afetada: {acao.quantidadeAfetada}</p>
                         <p>
                           Data planejada: {formatarData(acao.dataPlanejada)}
                         </p>
@@ -87,7 +84,7 @@ function DetalhesCategoria({ categoria, voltar }) {
                     <p>Nenhuma movimentação registrada.</p>
                   ) : (
                     lote.movimentacoes?.map((movimentacao) => (
-                      <div key={movimentacao.id}>
+                      <div key={movimentacao.id} className="categoria-registro">
                         <p>Tipo: {movimentacao.tipo}</p>
                         <p>Quantidade: {movimentacao.quantidade}</p>
                         <p>Data: {formatarData(movimentacao.data)}</p>

@@ -23,14 +23,19 @@ function FormularioCategoria({
           placeholder="Ex: Laticínios"
           required
         />
+        <div className="acoes-formulario">
+          <button className="botao botao-primario" type="submit">
+            {categoriaEmEdicao ? "Salvar alterações" : "Cadastrar categoria"}
+          </button>
 
-        <button type="submit">
-          {categoriaEmEdicao ? "Salvar alterações" : "Cadastrar categoria"}
-        </button>
-
-        <button type="button" onClick={cancelarEdicao}>
-          Voltar para categorias
-        </button>
+          <button
+            className="botao botao-secundario"
+            type="button"
+            onClick={cancelarEdicao}
+          >
+            Voltar para categorias
+          </button>
+        </div>
       </form>
     </section>
   );

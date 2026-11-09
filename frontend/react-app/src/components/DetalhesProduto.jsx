@@ -396,20 +396,36 @@ function DetalhesProduto({
   return (
     <section className="lista">
       <div className="barra-detalhes">
-        <button type="button" onClick={voltar}>
+        <button
+          type="button"
+          className="botao botao-secundario"
+          onClick={voltar}
+        >
           ← Voltar aos produtos
         </button>
 
         <div className="acoes-detalhes">
-          <button type="button" onClick={() => editarProduto(produto)}>
+          <button
+            type="button"
+            className="botao botao-secundario"
+            onClick={() => editarProduto(produto)}
+          >
             Editar produto
           </button>
 
-          <button type="button" onClick={abrirFormularioAcao}>
+          <button
+            type="button"
+            className="botao botao-primario"
+            onClick={abrirFormularioAcao}
+          >
             + Ação preventiva
           </button>
 
-          <button type="button" onClick={abrirFormularioMovimentacao}>
+          <button
+            type="button"
+            className="botao botao-primario"
+            onClick={abrirFormularioMovimentacao}
+          >
             + Movimentação do estoque
           </button>
         </div>
@@ -422,15 +438,14 @@ function DetalhesProduto({
       <p>Categoria: {categoriaDoProduto?.nome || "Não identificada"}</p>
 
       <div className="cabecalho-lotes">
-        <h2>Lotes cadastrados</h2>
+        <h3>Lotes cadastrados</h3>
 
         <button
           type="button"
-          className="botao-novo-lote"
+          className="botao botao-primario"
           onClick={abrirFormularioLote}
         >
-          <span>+</span>
-          Novo lote
+          + Novo lote
         </button>
       </div>
 
@@ -477,13 +492,17 @@ function DetalhesProduto({
             </p>
 
             <div className="botoes-lotes">
-              <button type="button" onClick={() => editarLote(lote)}>
+              <button
+                type="button"
+                className="botao botao-secundario"
+                onClick={() => editarLote(lote)}
+              >
                 Editar
               </button>
 
               <button
                 type="button"
-                className="botao-excluir"
+                className="botao botao-perigo"
                 onClick={() => removerLote(lote.id)}
               >
                 Excluir
@@ -571,6 +590,7 @@ function DetalhesProduto({
                     <div className="botoes-lotes">
                       <button
                         type="button"
+                        className="botao botao-secundario"
                         onClick={() => editarMovimentacao(movimentacao)}
                       >
                         Editar
@@ -578,7 +598,7 @@ function DetalhesProduto({
 
                       <button
                         type="button"
-                        className="botao-excluir"
+                        className="botao botao-perigo"
                         onClick={() => removerMovimentacao(movimentacao)}
                       >
                         Excluir
@@ -620,13 +640,17 @@ function DetalhesProduto({
                   {acao.observacoes && <p>Observações: {acao.observacoes}</p>}
 
                   <div className="botoes-lotes">
-                    <button type="button" onClick={() => editarAcao(acao)}>
+                    <button
+                      type="button"
+                      className="botao botao-secundario"
+                      onClick={() => editarAcao(acao)}
+                    >
                       Editar
                     </button>
 
                     <button
                       type="button"
-                      className="botao-excluir"
+                      className="botao botao-perigo"
                       onClick={() => removerAcao(acao)}
                     >
                       Excluir

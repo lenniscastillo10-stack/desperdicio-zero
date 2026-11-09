@@ -83,20 +83,29 @@ function FormularioLote({
           onChange={(e) => setDataValidade(e.target.value)}
           required
         />
-
-        <button type="submit">
-          {loteEmEdicao ? "Salvar alterações" : "Cadastrar lote"}
-        </button>
-
-        {loteEmEdicao ? (
-          <button type="button" onClick={cancelarEdicao}>
-            Cancelar edição
+        <div className="acoes-formulario">
+          <button className="botao botao-primario" type="submit">
+            {loteEmEdicao ? "Salvar alterações" : "Cadastrar lote"}
           </button>
-        ) : (
-          <button type="button" onClick={cancelarEdicao}>
-            Voltar aos lotes
-          </button>
-        )}
+
+          {loteEmEdicao ? (
+            <button
+              className="botao botao-secundario"
+              type="button"
+              onClick={cancelarEdicao}
+            >
+              Cancelar edição
+            </button>
+          ) : (
+            <button
+              className="botao botao-secundario"
+              type="button"
+              onClick={cancelarEdicao}
+            >
+              Voltar aos lotes
+            </button>
+          )}
+        </div>
       </form>
     </section>
   );

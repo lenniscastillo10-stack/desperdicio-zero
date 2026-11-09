@@ -49,7 +49,11 @@ function ListaProdutos({
       <div className="cabecalho-lista">
         <h2>Produtos cadastrados</h2>
 
-        <button type="button" onClick={abrirFormularioProduto}>
+        <button
+          type="button"
+          className="botao botao-primario"
+          onClick={abrirFormularioProduto}
+        >
           + Novo produto
         </button>
       </div>
@@ -91,7 +95,7 @@ function ListaProdutos({
                 </button>
                 <button
                   type="button"
-                  className="botao-excluir"
+                  className="botao botao-perigo"
                   onClick={() => removerProduto(produto.id)}
                 >
                   Excluir
