@@ -1,4 +1,5 @@
 import express from "express";
+import sequelize from "./config/database.js";
 import categoriasRoutes from "./routes/categorias.js"
 import produtosRoutes from "./routes/produtos.js";
 import lotesRoutes from "./routes/lotes.js";
@@ -24,6 +25,14 @@ app.get("/", (req, res) => {
 
 const PORT = 3000;
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+sequelize.sync()
+  .then(() => {
+    console.log("Banco de dados sincronizado!");
+
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  })
+  .catch((erro) => {
+    console.error("Erro ao sincronizar banco:", erro);
+  }); 

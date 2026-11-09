@@ -126,8 +126,8 @@ body {
 
 .produto-item p {
   margin: 8px 0 0;
-  color: #64748b;
-  font-size: 14px;
+  color: #f10d0d;
+  font-size: 22px;
 }
 
 @media (max-width: 500px) {
@@ -139,10 +139,10 @@ body {
 
 .risco {
   display: inline-block;
-  padding: 8px 12px;
+  padding: 10px 16px;
   border: 1px solid transparent;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: bold;
   white-space: nowrap;
 }
@@ -576,9 +576,9 @@ body {
 
 .produto > p {
   margin: 8px 0;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
-  color: #475569;
+  color: #1e293b;
 }
 
 .produto > .botoes-lotes {

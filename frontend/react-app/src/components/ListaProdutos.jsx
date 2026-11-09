@@ -65,7 +65,11 @@ function ListaProdutos({
           const resumo = obterResumo(produto);
 
           return (
-            <article key={produto.id} className="produto">
+
+          <article
+  key={produto.id}
+  className={`produto produto-risco-${resumo.risco.toLowerCase()}`}
+>
               <div className="produto-cabecalho">
                 <h3>{produto.nome}</h3>
 
