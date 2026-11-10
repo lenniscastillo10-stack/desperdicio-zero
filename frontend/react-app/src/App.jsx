@@ -10,6 +10,7 @@ import DetalhesProduto from "./components/DetalhesProduto";
 import FormularioCategoria from "./components/FormularioCategoria";
 import ListaCategorias from "./components/ListaCategorias";
 import DetalhesCategoria from "./components/DetalhesCategoria";
+import { listarMovimentacoes } from "./services/movimentacaoEstoqueService";
 
 import {
   listarCategorias,
@@ -58,21 +59,29 @@ function App() {
   const [formularioLoteAberto, setFormularioLoteAberto] = useState(false);
 
   const [acoesPreventivas, setAcoesPreventivas] = useState([]);
+  const [movimentacoes, setMovimentacoes] = useState([]);
 
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [dadosCategorias, dadosProdutos, dadosLotes, dadosAcoes] =
-          await Promise.all([
-            listarCategorias(),
-            listarProdutos(),
-            listarLotes(),
-            listarAcoesPreventivas(),
-          ]);
+        const [
+          dadosCategorias,
+          dadosProdutos,
+          dadosLotes,
+          dadosAcoes,
+          dadosMovimentacoes,
+        ] = await Promise.all([
+          listarCategorias(),
+          listarProdutos(),
+          listarLotes(),
+          listarAcoesPreventivas(),
+          listarMovimentacoes(),
+        ]);
 
         setCategorias(dadosCategorias);
         setProdutos(dadosProdutos);
         setLotes(dadosLotes);
+        setMovimentacoes(dadosMovimentacoes);
         setAcoesPreventivas(dadosAcoes);
       } catch (erro) {
         console.error("Erro ao carregar dados:", erro.message);
@@ -435,6 +444,11 @@ function App() {
     setLotes(dados);
   }
 
+  async function atualizarMovimentacoes() {
+    const dados = await listarMovimentacoes();
+    setMovimentacoes(dados);
+  }
+
   async function atualizarAcoesPreventivas() {
     const dados = await listarAcoesPreventivas();
     setAcoesPreventivas(dados);
@@ -472,6 +486,41 @@ function App() {
       calcularRisco(lote.dataValidade) !== "Baixo",
   );
 
+  const valorEmRiscoCentavos = lotesProximosVencimento.reduce((total, lote) => {
+    return (
+      total +
+      Number(lote.quantidadeDisponivel) * Number(lote.custoUnitarioCentavos)
+    );
+  }, 0);
+
+  const valorEmRisco = (valorEmRiscoCentavos / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  const perdasPorDescarteCentavos = movimentacoes
+    .filter((movimentacao) => movimentacao.tipo === "DESCARTE")
+    .reduce((total, movimentacao) => {
+      const lote = lotes.find(
+        (lote) => Number(lote.id) === Number(movimentacao.loteId),
+      );
+
+      if (!lote) return total;
+
+      return (
+        total +
+        Number(movimentacao.quantidade) * Number(lote.custoUnitarioCentavos)
+      );
+    }, 0);
+
+  const perdasPorDescarte = (perdasPorDescarteCentavos / 100).toLocaleString(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL",
+    },
+  );
+
   const acoesPlanejadas = acoesPreventivas.filter(
     (acao) => acao.status === "PLANEJADA",
   );
@@ -491,6 +540,10 @@ function App() {
           produtosEmRisco={produtosEmRisco.length}
           lotesProximosVencimento={lotesProximosVencimento.length}
           acoesPlanejadas={acoesPlanejadas.length}
+          valorEmRisco={valorEmRisco}
+          perdasPorDescarte={perdasPorDescarte}
+          perdasPorDescarteCentavos={perdasPorDescarteCentavos}
+          valorEmRiscoCentavos={valorEmRiscoCentavos}
         />
 
         {categoriaSelecionada ? (
@@ -535,6 +588,7 @@ function App() {
             abrirFormularioLote={abrirFormularioLote}
             atualizarLotes={atualizarLotes}
             atualizarAcoesPreventivas={atualizarAcoesPreventivas}
+            atualizarMovimentacoes={atualizarMovimentacoes}
             produtos={produtos}
             produtoId={produtoId}
             setProdutoId={setProdutoId}

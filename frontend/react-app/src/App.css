@@ -813,3 +813,19 @@ body {
   .cartao, .categoria-item, .produto, .categoria-produto, .botao { transition: none; }
   .cartao:hover, .categoria-item:hover, .produto:hover, .categoria-produto:hover, .botao:hover { transform: none; }
 }
+
+.cartao strong.valor-perda {
+  color: #dc2626;
+}
+
+.cartao.cartao-perda {
+  border-left-color: #dc2626;
+}
+
+.cartao.cartao-risco {
+  border-left-color: #d97706;
+}
+
+.cartao strong.valor-risco {
+  color: #d97706;
+}

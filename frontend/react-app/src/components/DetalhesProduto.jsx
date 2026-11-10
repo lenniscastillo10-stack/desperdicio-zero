@@ -27,6 +27,7 @@ function DetalhesProduto({
   abrirFormularioLote,
   atualizarLotes,
   atualizarAcoesPreventivas,
+  atualizarMovimentacoes,
 
   produtos,
   produtoId,
@@ -81,6 +82,15 @@ function DetalhesProduto({
 
     carregarMovimentacoes();
   }, []);
+
+  useEffect(() => {
+    if (!formularioMovimentacaoAberto) return;
+
+    document.getElementById("formulario-movimentacao")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [formularioMovimentacaoAberto]);
 
   useEffect(() => {
     async function carregarAcoes() {
@@ -162,6 +172,7 @@ function DetalhesProduto({
     setData("");
     setObservacoes("");
     setFormularioMovimentacaoAberto(true);
+    rolarParaFormularioMovimentacao();
   }
 
   async function registrarMovimentacao(event) {
@@ -217,6 +228,10 @@ function DetalhesProduto({
       if (atualizarLotes) {
         await atualizarLotes();
       }
+
+      if (atualizarMovimentacoes) {
+        await atualizarMovimentacoes();
+      }
     } catch (erro) {
       alert(erro.message);
     }
@@ -238,6 +253,10 @@ function DetalhesProduto({
 
       if (atualizarLotes) {
         await atualizarLotes();
+      }
+
+      if (atualizarMovimentacoes) {
+        await atualizarMovimentacoes();
       }
 
       alert("Movimentação excluída com sucesso!");
@@ -263,8 +282,8 @@ function DetalhesProduto({
     setQuantidadeAfetada(String(acao.quantidadeAfetada));
     setDataPlanejada(acao.dataPlanejada);
     setObservacoesAcao(acao.observacoes || "");
-
     setFormularioAcaoAberto(true);
+    rolarParaFormularioAcao();
   }
 
   function cancelarAcao() {
@@ -393,6 +412,28 @@ function DetalhesProduto({
     }
   }
 
+  function rolarParaFormularioMovimentacao() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById("formulario-movimentacao")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    });
+  }
+
+  function rolarParaFormularioAcao() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById("formulario-acao")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    });
+  }
+
   return (
     <section className="lista">
       <div className="barra-detalhes">
@@ -513,22 +554,24 @@ function DetalhesProduto({
       )}
 
       {formularioMovimentacaoAberto && (
-        <FormularioMovimentacao
-          lotes={lotesDoProduto}
-          movimentacaoEmEdicao={movimentacaoEmEdicao}
-          loteId={loteId}
-          setLoteId={setLoteId}
-          tipo={tipo}
-          setTipo={setTipo}
-          quantidade={quantidade}
-          setQuantidade={setQuantidade}
-          data={data}
-          setData={setData}
-          observacoes={observacoes}
-          setObservacoes={setObservacoes}
-          registrarMovimentacao={registrarMovimentacao}
-          cancelar={cancelarMovimentacao}
-        />
+        <div id="formulario-movimentacao">
+          <FormularioMovimentacao
+            lotes={lotesDoProduto}
+            movimentacaoEmEdicao={movimentacaoEmEdicao}
+            loteId={loteId}
+            setLoteId={setLoteId}
+            tipo={tipo}
+            setTipo={setTipo}
+            quantidade={quantidade}
+            setQuantidade={setQuantidade}
+            data={data}
+            setData={setData}
+            observacoes={observacoes}
+            setObservacoes={setObservacoes}
+            registrarMovimentacao={registrarMovimentacao}
+            cancelar={cancelarMovimentacao}
+          />
+        </div>
       )}
 
       {formularioAcaoAberto && (
