@@ -179,7 +179,7 @@ A aplicação utiliza os seguintes endpoints principais:
 | Produtos | `/produtos` |
 | Lotes | `/lotes` |
 | Ações preventivas | `/acoes-preventivas` |
-| | Movimentações de estoque | `/movimentacao-estoque` |
+| Movimentações de estoque | `/movimentacao-estoque` |
 
 A API permite operações de criação, consulta, atualização e exclusão, respeitando as validações e regras de negócio implementadas.
 
